@@ -1,6 +1,7 @@
 server = {};
 server.mapObjects = {};
 server.peers = {};
+server.vehicles = {};
 
 --[[ http://www.cplusplus.com/reference/cstdio/printf/ ]]
 function printf(s,...)
@@ -20,6 +21,9 @@ function getOrSetArr(root, index)
         return root[index];
     end
 end
+function getRandomId()
+    return math.random(1, 999999);
+end
 
 --UI
 function server.announce(name, message)
@@ -35,7 +39,7 @@ function server.notify(peer_id, title, message, NOTIFICATION_TYPE)
     printf("Notifiing peer %d with '%s', '%s', %d", peer_id, title, message, NOTIFICATION_TYPE)
 end
 function server.getMapID()
-    return math.random(0, 999999);
+    return getRandomId();
 end
 function server.removeMapID(peer_id, ui_id)
     assureParameterInBounds("peer_id", peer_id, -1);
@@ -205,12 +209,36 @@ end
 
 --Vehicle
 function server.spawnVehicle(matrix, playlist_index, component_id)
+    assureParameterInBounds("playlist_index", playlist_index, 1);
+    local vehicleIndex = #server.vehicles;
+    getOrSetArr(server.vehicles, vehicleIndex);
+    server.vehicles[vehicleIndex].id = server.getRandomId();
+    server.vehicles[vehicleIndex].pos = matrix;
+    server.vehicles[vehicleIndex].component_id = component_id;
+    server.vehicles[vehicleIndex].playlist_index = playlist_index;
+    return server.vehicles[vehicleIndex].id;
 end
 function server.spawnVehicleSavefile(matrix, save_name)
+    local vehicleIndex = #server.vehicles;
+    getOrSetArr(server.vehicles, vehicleIndex);
+    server.vehicles[vehicleIndex].id = server.getRandomId();
+    server.vehicles[vehicleIndex].pos = matrix;
+    server.vehicles[vehicleIndex].save_name = save_name;
+    return server.vehicles[vehicleIndex].id;
 end
 function server.despawnVehicle(vehicle_id, is_instant)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1)
+    for playListId = 1, #server.vehicles do
+        server.vehicles[playListId][vehicle_id] = nil;
+    end
 end
-function server.getVehiclePos(vehicle_id, voxel_x = 0, voxel_y = 0, voxel_z = 0)
+function server.test_setVehiclePos(vehicle_id, voxelX, voxelY, voxelZ)
+    for i = 1, #server.vehicles do
+        
+    end
+end
+function server.getVehiclePos(vehicle_id, voxel_x, voxel_y, voxel_z)
+
 end
 function server.getVehicleName(vehicle_id)
 end
@@ -252,7 +280,7 @@ function server.spawnFire(matrix, size, magnitude, is_lit, is_initialzied, is_ex
 end
 function server.despawnObject(object_id, is_instant)
 end
-function server.spawnCharacter(matrix, (outfit_id))
+function server.spawnCharacter(matrix, outfit_id)
 end
 function server.spawnAnimal(matrix, animal_type, scale)
 end
@@ -266,7 +294,7 @@ function server.setCharacterItem(object_id, slot, EQUIPMENT_ID, is_active)
 end
 function server.getTutorial()
 end
-function server.getZones(tag(s))
+function server.getZones(tags)
 end
 function server.isInZone(matrix, zone_display_name)
 end

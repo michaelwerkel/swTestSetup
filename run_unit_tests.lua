@@ -1,6 +1,6 @@
 local lu = require("test/deps/luaunit");
 
-local sw_vehicle = require("test/deps/sw_vehicle");
+local sw_vehicle = require("test/deps/sw_mission");
 
 function test_exampleScript()
 
