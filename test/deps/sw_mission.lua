@@ -140,6 +140,7 @@ function server.test_setPlayerName(peer_id, name)
     for index = 1, #server.peers do
         if server.peers[peer_id].id == peer_id then
             server.peers[peer_id].name = name;
+            break;
         end
     end
 end
@@ -161,6 +162,7 @@ function server.test_setPlayerPos(peer_id, matrix)
     for index = 1, #server.peers do
         if server.peers[peer_id].id == peer_id then
             server.peers[peer_id].pos = matrix;
+            break;
         end
     end
 end
@@ -178,6 +180,7 @@ function server.teleportPlayer(peer_id, matrix)
     for i = 1, #server.peers do
         if server.peers[i].id == peer_id then
             server.peers[i].pos = matrix;
+            break;
         end
     end
 end
@@ -194,6 +197,7 @@ function server.test_setPlayerLookDirection(peer_id, lookDirection)
     for i = 1, #server.peers do
         if server.peers[i].id == peer_id then
             server.peers[i].lookDirection = lookDirection;
+            break;
         end
     end
 end
@@ -228,35 +232,115 @@ function server.spawnVehicleSavefile(matrix, save_name)
 end
 function server.despawnVehicle(vehicle_id, is_instant)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
-    for playListId = 1, #server.vehicles do
-        server.vehicles[playListId][vehicle_id] = nil;
+    for vehicleIndex = 1, #server.vehicles do
+        if server.vehicles[vehicleIndex].id == vehicle_id then
+            server.vehicles[vehicleIndex] = nil;
+            break;
+        end
     end
 end
 function server.test_setVehiclePos(vehicle_id, voxelX, voxelY, voxelZ)
-    for i = 1, #server.vehicles do
-        
+    assureParameterInBounds("vehicle_id", vehicle_id, 1)
+    for vehicleIndex = 1, #server.vehicles do
+        if server.vehicles[vehicleIndex].id == vehicle_id then
+            server.vehicles[vehicleIndex].voxelX = voxel_x;
+            server.vehicles[vehicleIndex].voxelY = voxel_y;
+            server.vehicles[vehicleIndex].voxelZ = voxel_z;
+            break;
+        end
     end
 end
 function server.getVehiclePos(vehicle_id, voxel_x, voxel_y, voxel_z)
-
+    assureParameterInBounds("vehicle_id", vehicle_id, 1)
+    for playListIndex = 1, #server.vehicles do
+        for vehicleId = 1, #server.vehicles[playListId] do
+            if vehicleId == vehicle_id then
+                server.vehicles[playListId][vehicleId].voxelX = voxel_x;
+                server.vehicles[playListId][vehicleId].voxelY = voxel_y;
+                server.vehicles[playListId][vehicleId].voxelZ = voxel_z;
+                break;
+            end
+        end
+    end
 end
 function server.getVehicleName(vehicle_id)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1)
+    for vehicleIndex = 1, #server.vehicles then
+        if server.vehicles[vehicleIndex].id == vehicle_id then
+            return server.vehicles[vehicleIndex].name;
+        end
+    end
 end
 function server.teleportVehicle(matrix, vehicle_id)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1)
+    for vehicleIndex = 1, #server.vehicles do
+        if server.vehicles[vehicleIndex].id == vehicle_id then
+            server.vehicles[vehicleIndex].pos = matrix;
+            break;
+        end
+    end
 end
 function server.cleanVehicles()
+    server.vehicles = {};
 end
 function server.pressVehicleButton(vehicle_id, button_name)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1)
+    printf("Button '%s' of vehicle '%d' has been pressed.", button_name, vehicle_id);
+end
+function server.test_setVehicleFireCount(vehicle_id, count)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1)
+    for vehicleIndex = 1, #server.vehicles do
+        if server.vehicles[vehicleIndex].id == vehicleId then
+            server.vehicles[vehicleIndex].fireCount = count;
+            break;
+        end
+    end
 end
 function server.getVehicleFireCount(vehicle_id)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1)
+    for vehicleIndex = 1, #server.vehicles do
+        if server.vehicles[vehicleIndex].id == vehicle_id then
+            return server.vehicles[vehicleIndex].fireCount;
+        end
+    end
 end
 function server.setVehicleTooltip(vehicle_id, text)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1)
+    printf("Tooltip for vehicle '%d' set to '%s'", vehicle_id, text);
+end
+function server.test_setVehicleSimulating(vehicleId, simulating)
+    for vehicleIndex = 1, #server.vehicles do
+        if server.vehicles[vehicleIndex].id == vehicle_id then
+            server.vehicles[vehicleIndex].simulating = simulating;
+            break;
+        end
+    end
 end
 function server.getVehicleSimulating(vehicle_id)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1);
+    for vehicleIndex = 1, #server.vehicles do
+        if server.vehicles[vehicleIndex].id == vehicle_id then
+            return server.vehicles[vehicleIndex].simulating;
+        end
+    end
 end
 function server.setVehicleTransponder(vehicle_id, is_active)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1);
+    for vehicleIndex = 1, #server.vehicles do
+        if server.vehicles[vehicleIndex].id == vehicle_id then
+            server.vehicles[vehicleIndex].transponderActive = is_active;
+            break;
+        end
+    end
 end
 function server.setVehicleEditable(vehicle_id, is_editable)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1);
+    for vehicleIndex = 1, #server.vehicles do
+        if server.vehicles[vehicleIndex].id == vehicle_id then
+            server.vehicles[vehicleIndex].editable = editable;
+            break;
+        end
+    end
 end
 
 --Mission
