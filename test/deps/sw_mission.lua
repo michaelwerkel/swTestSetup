@@ -1,6 +1,6 @@
 server = {};
 server.mapObjects = {};
-
+server.peers = {};
 
 --[[ http://www.cplusplus.com/reference/cstdio/printf/ ]]
 function printf(s,...)
@@ -30,6 +30,7 @@ function server.whisper(peer_id, message)
     printf("Whispering peer %d with '%s'", peer_id, message);
 end
 function server.notify(peer_id, title, message, NOTIFICATION_TYPE)
+    assureParameterInBounds("peer_id", peer_id, -1);
     assureParameterInBounds("NOTIFICATION_TYPE", NOTIFICATION_TYPE, 0, 9);
     printf("Notifiing peer %d with '%s', '%s', %d", peer_id, title, message, NOTIFICATION_TYPE)
 end
@@ -37,7 +38,9 @@ function server.getMapID()
     return math.random(0, 999999);
 end
 function server.removeMapID(peer_id, ui_id)
-
+    assureParameterInBounds("peer_id", peer_id, -1);
+    assureParameterInBounds("ui_id", ui_id, -1);
+    server.mapObjects[peer_id][ui_id] = nil;
 end
 function server.addMapObject(peer_id, ui_id, POSITION_TYPE, MARKER_TYPE, x, y, z, parent_local_x, parent_local_y, parent_local_z, vehicle_id, object_id, label, vehicle_parent_id, radius, hover_label)
     assureParameterInBounds("peer_id", peer_id, -1);
@@ -46,52 +49,158 @@ function server.addMapObject(peer_id, ui_id, POSITION_TYPE, MARKER_TYPE, x, y, z
     assureParameterInBounds("MARKER_TYPE", MARKER_TYPE, 0, 8);
     getOrSetArr(server.mapObjects, peer_id)
     getOrSetArr(server.mapObjects[peer_id], ui_id);
-    server.mapObjects[peer_id][ui_id].POSITION_TYPE = POSITION_TYPE;
-    server.mapObjects[peer_id][ui_id].MARKER_TYPE = MARKER_TYPE;
-    server.mapObjects[peer_id][ui_id].x = x;
-    server.mapObjects[peer_id][ui_id].y = y;
-    server.mapObjects[peer_id][ui_id].z = z;
-    server.mapObjects[peer_id][ui_id].parent_local_x = parent_local_x;
-    server.mapObjects[peer_id][ui_id].parent_local_y = parent_local_y;
-    server.mapObjects[peer_id][ui_id].parent_local_z = parent_local_z;
-    server.mapObjects[peer_id][ui_id].vehicle_id = vehicle_id;
-    server.mapObjects[peer_id][ui_id].object_id = object_id;
-    server.mapObjects[peer_id][ui_id].label = label;
-    server.mapObjects[peer_id][ui_id].vehicle_parent_id = vehicle_parent_id;
-    server.mapObjects[peer_id][ui_id].radius = radius;
-    server.mapObjects[peer_id][ui_id].hover_label = hover_label;
+    getOrSetArr(server.mapObjects[peer_id[ui_id]], "mapObject");
+    server.mapObjects[peer_id][ui_id].mapObject.POSITION_TYPE = POSITION_TYPE;
+    server.mapObjects[peer_id][ui_id].mapObject.MARKER_TYPE = MARKER_TYPE;
+    server.mapObjects[peer_id][ui_id].mapObject.x = x;
+    server.mapObjects[peer_id][ui_id].mapObject.y = y;
+    server.mapObjects[peer_id][ui_id].mapObject.z = z;
+    server.mapObjects[peer_id][ui_id].mapObject.parent_local_x = parent_local_x;
+    server.mapObjects[peer_id][ui_id].mapObject.parent_local_y = parent_local_y;
+    server.mapObjects[peer_id][ui_id].mapObject.parent_local_z = parent_local_z;
+    server.mapObjects[peer_id][ui_id].mapObject.vehicle_id = vehicle_id;
+    server.mapObjects[peer_id][ui_id].mapObject.object_id = object_id;
+    server.mapObjects[peer_id][ui_id].mapObject.label = label;
+    server.mapObjects[peer_id][ui_id].mapObject.vehicle_parent_id = vehicle_parent_id;
+    server.mapObjects[peer_id][ui_id].mapObject.radius = radius;
+    server.mapObjects[peer_id][ui_id].mapObject.hover_label = hover_label;
 end
 function server.removeMapObject(peer_id, ui_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    assureParameterInBounds("ui_id", ui_id, -1);
+    server.mapObjects[peer_id][ui_id].mapObject = nil;
 end
 function server.addMapLabel(peer_id, ui_id, LABEL_TYPE, name, x, y, z)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    assureParameterInBounds("ui_id", ui_id, -1);
+    assureParameterInBounds("LABEL_TYPE", LABEL_TYPE, 0, 14);
+    getOrSetArr(server.mapObjects, peer_id)
+    getOrSetArr(server.mapObjects[peer_id], ui_id);
+    getOrSetArr(server.mapObjects[peer_id[ui_id]], "label");
+    server.mapObjects[peer_id][ui_id].label.LABEL_TYPE = LABEL_TYPE;
+    server.mapObjects[peer_id][ui_id].label.name = name;
+    server.mapObjects[peer_id][ui_id].mapObject.x = x;
+    server.mapObjects[peer_id][ui_id].mapObject.y = y;
+    server.mapObjects[peer_id][ui_id].mapObject.z = z;
 end
 function server.removeMapLabel(peer_id, ui_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    assureParameterInBounds("ui_id", ui_id, -1);
+    server.mapObjects[peer_id][ui_id].label = nil;
 end
 function server.addMapLine(peer_id, ui_id, start_matrix, end_matrix, width)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    assureParameterInBounds("ui_id", ui_id, -1);
+    getOrSetArr(server.mapObjects, peer_id)
+    getOrSetArr(server.mapObjects[peer_id], ui_id);
+    getOrSetArr(server.mapObjects[peer_id[ui_id]], "line");
+    server.mapObjects[peer_id][ui_id].line.start_matrix = start_matrix;
+    server.mapObjects[peer_id][ui_id].line.end_matrix = end_matrix;
+    server.mapObjects[peer_id][ui_id].line.width = width;
 end
 function server.removeMapLine(peer_id, ui_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    assureParameterInBounds("ui_id", ui_id, -1);
+    server.mapObjects[peer_id][ui_id].line = nil;
 end
 function server.setPopup(peer_id, ui_id, name, is_show, text, x, y, z, is_worldspace, render_distance)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    assureParameterInBounds("ui_id", ui_id, -1);
+    getOrSetArr(server.mapObjects, peer_id)
+    getOrSetArr(server.mapObjects[peer_id], ui_id);
+    server.mapObjects[peer_id][ui_id].popup.name = name;
+    server.mapObjects[peer_id][ui_id].popup.is_show = is_show;
+    server.mapObjects[peer_id][ui_id].popup.text = text;
+    server.mapObjects[peer_id][ui_id].popup.x = x;
+    server.mapObjects[peer_id][ui_id].popup.y = y;
+    server.mapObjects[peer_id][ui_id].popup.z = z;
+    server.mapObjects[peer_id][ui_id].popup.is_worldspace = is_worldspace;
+    server.mapObjects[peer_id][ui_id].popup.render_distance = render_distance;
 end
 function server.removePopup(peer_id, ui_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    assureParameterInBounds("ui_id", ui_id, -1);
+    server.mapObjects[peer_id][ui_id].popup = nil;
 end
 function server.createPopup(peer_id, ui_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    getOrSetArr(server.mapObjects, peer_id)
+    getOrSetArr(server.mapObjects[peer_id], ui_id);
+    getOrSetArr(server.mapObjects[peer_id[ui_id]], "popup");
 end
 
 --Player
+function server.test_setPlayerName(peer_id, name)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    getOrSetArr(server.peer, peer_id);
+    for index = 1, #server.peers do
+        if server.peers[peer_id].id == peer_id then
+            server.peers[peer_id].name = name;
+        end
+    end
+end
 function server.getPlayerName(peer_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    for index = 1, #server.peers do
+        if server.peers[i].id == peer_id then
+            return server.peers[i].name;
+        end
+    end
+    return nil;
 end
 function server.getPlayers()
+    return server.peers;
+end
+function server.test_setPlayerPos(peer_id, matrix)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    getOrSetArr(server.peer, index);
+    for index = 1, #server.peers do
+        if server.peers[peer_id].id == peer_id then
+            server.peers[peer_id].pos = matrix;
+        end
+    end
 end
 function server.getPlayerPos(peer_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    for index = 1, #server.peers do
+        if server.peers[peer_id].id == peer_id then
+            return server.peers[peer_id].pos;
+        end
+    end
+    return nil;
 end
 function server.teleportPlayer(peer_id, matrix)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    for i = 1, #server.peers do
+        if server.peers[i].id == peer_id then
+            server.peers[i].pos = matrix;
+        end
+    end
 end
 function server.killPlayer(peer_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    printf("Killed peer id %d", peer_id);
 end
 function server.setSeated(peer_id, vehicle_id, seat_name)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    printf("Seated peer id %d in %d on %s", peer_id, vehicle_id, seat_name)
+end
+function server.test_setPlayerLookDirection(peer_id, lookDirection)
+    getOrSetArr(server.peer, peer_id);
+    for i = 1, #server.peers do
+        if server.peers[i].id == peer_id then
+            server.peers[i].lookDirection = lookDirection;
+        end
+    end
 end
 function server.getPlayerLookDirection(peer_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    for i = 1, #server.peers do
+        if server.peers[i].id == peer_id then
+            return server.peers[i].lookDirection;
+        end
+    end
+    return nil;
 end
 
 --Vehicle
