@@ -2,6 +2,7 @@ server = {};
 server.mapObjects = {};
 server.peers = {};
 server.vehicles = {};
+server.playlists = {};
 
 --[[ http://www.cplusplus.com/reference/cstdio/printf/ ]]
 function printf(s,...)
@@ -345,20 +346,48 @@ end
 
 --Mission
 function server.getPlaylistIndexByName(name)
+    for playListIndex = 1, #server.playlists do
+        if server.playlists[playListIndex] == name then
+            return playListIndex;
+        end
+    end
+end
+function server.test_setPlaylistIndexCurrent(currentPlaylistIndex)
+    server.playlists.currentPlaylistIndex = currentPlaylistIndex;
 end
 function server.getPlaylistIndexCurrent()
+    return server.playlists.currentPlaylistIndex;
 end
 function server.getLocationIndexByName(playlist_index, name)
+    assureParameterInBounds("playlist_index", playlist_index, 1);
+    getOrSetArr(server.playlists[playlist_index].locations, {});
+    for locationIndex = 1, server.playlists[playlist_index].locations do
+        if server.playlists[playlist_index].locations[locationIndex].name == name then
+            return locationIndex;
+        end
+    end
 end
 function server.spawnThisPlaylistMissionLocation(name)
+    local currentPlaylistIndex = server.getPlaylistIndexCurrent();
+    local locationIndex = server.getLocationIndexByName(currentPlaylistIndex, name);
+    server.playlists[currentPlaylistIndex].locations[locationIndex].spawned = true;
+    printf("Location %d of playlist $d spawned.", locationIndex, currentPlaylistIndex);
 end
-function server.spawnMissionLocation(matrix, playlist_index, location_index) 
+function server.spawnMissionLocation(matrix, playlist_index, location_index)
+    assureParameterInBounds("playlist_index", playlist_index, 1);
+    server.playlists[playlist_index].locations[location_index].pos = matrix;
+    server.playlists[playlist_index].locations[location_index].spawned = true;
 end
 function server.getPlaylistPath(playlist_name, is_rom)
+    local playlistIndex = server.getPlaylistIndexByName(playlist_name);
+    return server.playlists[playListIndex].filePath;
 end
 function server.spawnObject(matrix, OBJECT_TYPE)
+    assureParameterInBounds("OBJECT_TYPE", OBJECT_TYPE, 0, 63);
+    printf("Object '%d' spawned at " .. matrix, OBJECT_TYPE);
 end
 function server.getObjectPos(object_id)
+    
 end
 function server.spawnFire(matrix, size, magnitude, is_lit, is_initialzied, is_explosive, parent_vehicle_id, explosion_magnitude)
 end
