@@ -292,39 +292,46 @@ end
 --Vehicle
 function server.spawnVehicle(matrix, playlist_index, component_id)
     assureParameterInBounds("playlist_index", playlist_index, 1);
+    assureParameterInBounds("component_id", component_id, 1);
+    local playList = server.playlists[playlist_index];
+    assureNotNil("playList", playList);
     local vehicleIndex = #server.vehicles + 1;
+    local vehicleId = getRandomId();
     getOrSetArr(server.vehicles, vehicleIndex);
-    server.vehicles[vehicleIndex].id = server.getRandomId();
+    server.vehicles[vehicleIndex].id = vehicleId;
     server.vehicles[vehicleIndex].pos = matrix;
     server.vehicles[vehicleIndex].component_id = component_id;
     server.vehicles[vehicleIndex].playlist_index = playlist_index;
-    return server.vehicles[vehicleIndex].id;
+    return vehicleId;
 end
 function server.spawnVehicleSavefile(matrix, save_name)
     local vehicleIndex = #server.vehicles + 1;
+    local vehicleId = getRandomId();
     getOrSetArr(server.vehicles, vehicleIndex);
-    server.vehicles[vehicleIndex].id = server.getRandomId();
+    server.vehicles[vehicleIndex].id = vehicleId;
     server.vehicles[vehicleIndex].pos = matrix;
     server.vehicles[vehicleIndex].save_name = save_name;
-    return server.vehicles[vehicleIndex].id;
+    return vehicleId;
 end
 function server.despawnVehicle(vehicle_id, is_instant)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     destroyArrayElementById(server.vehicles, vehicle_id);
 end
-function server.test_setVehiclePos(vehicle_id, voxelX, voxelY, voxelZ)
+function server.test_setVehiclePos(vehicle_id, voxel_x, voxel_y, voxel_z, matrix)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
-    vehicle.voxelX = voxelX;
-    vehicle.voxelY = voxelY;
-    vehicle.voxelZ = voxelZ;
+    vehicle.pos[voxel_x] = {
+        [voxel_y] = {
+            [voxel_z] = matrix;
+        }
+    };
 end
 function server.getVehiclePos(vehicle_id, voxel_x, voxel_y, voxel_z)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
-    return vehicle.pos;
+    return vehicle.pos[voxel_x][voxel_y][voxel_z];
 end
 function server.getVehicleName(vehicle_id)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
@@ -336,7 +343,7 @@ function server.teleportVehicle(matrix, vehicle_id)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
-    return vehicle.pos;
+    vehicle.pos = matrix;
 end
 function server.cleanVehicles()
     server.vehicles = {};
@@ -351,6 +358,7 @@ function server.test_setVehicleFireCount(vehicle_id, count)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
+    vehicle.fireCount = count;
 end
 function server.getVehicleFireCount(vehicle_id)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
@@ -362,11 +370,11 @@ function server.setVehicleTooltip(vehicle_id, text)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
-    printf("Tooltip for vehicle '%d' set to '%s'", vehicle_id, text);
+    vehicle.toolTip = text;
 end
 function server.test_setVehicleSimulating(vehicleId, simulating)
     assureParameterInBounds("vehicleId", vehicleId, 1);
-    local vehicle = getArrayElementById(server.vehicles, vehicle_id);
+    local vehicle = getArrayElementById(server.vehicles, vehicleId);
     assureNotNil("vehicle", vehicle);
     vehicle.simulating = simulating;
 end

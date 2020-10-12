@@ -258,6 +258,141 @@ function TestSW:testGetPlayerLookDirection()
     -- Assert
     lu.assertTableContains(lookDirection, 3);
 end
+function TestSW:testSpawnVehicle()
+    -- Arrange
+    server.playlists[123] = {};
+
+    -- Act
+    local vehicleId = server.spawnVehicle({x = 1, y = 2, z = 3}, 123, 3);
+
+    -- Assert
+    lu.assertIsTrue(vehicleId >= 1);
+    lu.assertIsTrue(vehicleId <= 999999);
+end
+function TestSW:testSpawnVehicleSaveFile()
+    -- Act
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+
+    -- Assert
+    lu.assertNotIsNil(server.vehicles[1]);
+    lu.assertIsTrue(vehicleId >= 1);
+    lu.assertIsTrue(vehicleId <= 999999);
+end
+function TestSW:testDespawnVehicle()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+
+    -- Act
+    server.despawnVehicle(vehicleId, false);
+
+    -- Assert
+    lu.assertIsNil(server.vehicles[1]);
+end
+function TestSW:testGetVehiclePos()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+    local vehiclePos = {x = 4, y = 5, z = 6};
+    server.test_setVehiclePos(vehicleId, 1, 1, 1, vehiclePos);
+
+    -- Act
+    local matrix = server.getVehiclePos(vehicleId, 1, 1, 1);
+
+    -- Assert
+    lu.assertEquals(matrix, vehiclePos);
+end
+function TestSW:testGetVehicleName()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+    server.vehicles[1].name = "MyVehicle";
+
+    -- Act
+    local vehicleName = server.getVehicleName(vehicleId);
+
+    -- Assert
+    lu.assertEquals(vehicleName, "MyVehicle");
+end
+function TestSW:testTeleportVehicle()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+    server.vehicles[1].pos = {x = 1, y = 2, z = 3};
+    local newPos = {x = 4, y = 5, z = 6};
+
+    -- Act
+    server.teleportVehicle(newPos, vehicleId);
+
+    -- Assert
+    lu.assertEquals(server.vehicles[1].pos, newPos);
+end
+function TestSW:testCleanVehicles()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+
+    -- Act
+    server.cleanVehicles();
+    
+    -- Assert
+    lu.assertIsNil(server.vehicles[1]);
+end
+function TestSW:testPressVehicleButton()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+
+    -- Act
+    server.pressVehicleButton(vehicleId, "MyButton");
+end
+function TestSW:testGetVehicleFireCount()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+    server.test_setVehicleFireCount(vehicleId, 2);
+
+    -- Act
+    local fireCount = server.getVehicleFireCount(vehicleId);
+
+    -- Assert
+    lu.assertEquals(fireCount, 2);
+end
+function TestSW:testSetVehicleToolTip()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+
+    -- Act
+    server.setVehicleTooltip(vehicleId, "MyToolTip");
+
+    -- Assert
+    lu.assertEquals(server.vehicles[1].toolTip, "MyToolTip");
+end
+function TestSW:testGetVehicleSimulating()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+    server.vehicles[1].simulating = true;
+
+    -- Act
+    local simulating = server.getVehicleSimulating(vehicleId);
+
+    -- Assert
+    lu.assertEquals(simulating, true);
+end
+function TestSW:testSetVehicleTransponder()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+
+    -- Act
+    server.setVehicleTransponder(vehicleId, true);
+
+    -- Assert
+    lu.assertEquals(server.vehicles[1].transponderActive, true);
+end
+function TestSW:testSetVehicleEditable()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+
+    -- Act
+    server.setVehicleEditable(vehicleId, false);
+
+    -- Assert
+    lu.assertEquals(server.vehicles[1].editable, false);
+end
+
 
 local runner = lu.LuaUnit.new();
 os.exit(runner:run());
