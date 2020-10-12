@@ -6,6 +6,7 @@ server.playlists = {};
 server.objects = {};
 server.zones = {};
 server.gameSettings = {};
+server.gameSettings.settings = {};
 server.gameSettings.GAME_SETTINGS = {
     "third_person",
     "third_person_vehicle",
@@ -42,6 +43,7 @@ server.gameSettings.GAME_SETTINGS = {
     "despawn_on_leave", -- despawn player characters on leave
     "unlock_all_components"
 };
+server.tiles = {};
 
 --[[ http://www.cplusplus.com/reference/cstdio/printf/ ]]
 function printf(s,...)
@@ -57,6 +59,14 @@ function assureNotNil(name, value)
     if not value then
         error(name .. " doesn't exist.");
     end
+end
+function assureValueInArray(arrRoot, value)
+    for i = 1, #arrRoot do
+        if arrRoot[i] == value then
+            return true
+        end
+    end
+    error("'" .. value .. "' not in array.");
 end
 function getOrSetArr(root, index)
     if root[index] then
@@ -543,19 +553,40 @@ end
 
 --Game
 function server.setGameSetting(GAME_SETTING, value)
-
+    assureValueInArray(server.gameSettings.GAME_SETTINGS, value);
+    server.gameSettings.settings[GAME_SETTING] = value;
 end
 function server.getGameSettings()
+    return server.gameSettings.settings;
 end
 function server.setCurrency(money, research)
+    server.gameSettings.money = money;
+    server.gameSettings.research = research;
 end
 function server.getCurrency()
+    return server.gameSettings.money;
 end
 function server.getResearchPoints()
+    return server.gameSettings.research;
+end
+function server.test_setDateValue(value)
+    server.gameSettings.date = value;
 end
 function server.getDateValue()
+    return server.gameSettings.date;
 end
 function server.getTimeMillisec()
+    return os.time();
+end
+function server.test_setTilePurchased(matrix, purchased)
+    local tileIndex = #server.tiles + 1;
+    getOrSetArr(server.tiles, tileIndex);
+    server.tiles[tileIndex].purchased = purchased;
+    server.tiles[tileIndex].matrix = matrix;
 end
 function server.getTilePurchased(matrix)
+    for tileIndex = 1, #server.tiles do
+        -- check if matrices equal
+        -- return whether the tile is purchased
+    end
 end
