@@ -537,7 +537,8 @@ end
 function server.getTutorial()
     return server.playlists.tutorial and server.playlists.tutorial or false;
 end
-function server.getZones(tags, ...)
+function server.getZones(...)
+    local tags = {...};
     local resultTags = {};
     for zoneIndex = 1, #server.zones do
         for tagIndex = 1, #server.zones[zoneIndex].tags do

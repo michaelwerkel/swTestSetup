@@ -83,7 +83,7 @@ function screen.drawTriangle(x1, y1, x2, y2, x3, y3)
     printf("Triangle drawn on %d, %d, %d, %d, %d, %d", x1, y1, x2, y2, x3, y3);
 end
 function screen.drawTriangleF(x1, y1, x2, y2, x3, y3)
-    rintf("Filled triangle drawn on %d, %d, %d, %d, %d, %d", x1, y1, x2, y2, x3, y3);
+    printf("Filled triangle drawn on %d, %d, %d, %d, %d, %d", x1, y1, x2, y2, x3, y3);
 end
 function screen.drawText(x, y, text)
     printf("Text drawn on %d, %d with '%s'", x, y, text);

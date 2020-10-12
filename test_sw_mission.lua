@@ -564,6 +564,45 @@ function TestSW:testGetZones()
     -- Assert
     lu.assertEquals(zones[1].tags[1], server.zones[1].tags[1]);
 end
+function TestSW:testIsInZone()
+    server.isInZone()
+end
+function TestSW:testSpawnMissionObject()
+    server.spawnMissionObject();
+end
+function TestSW:testDespawnMissionObject()
+    server.despawnMissionObject();
+end
+function TestSW:testGetLocationObjectData()
+    server.getLocationObjectData();
+end
+function TestSW:testSetFireData()
+    -- Arrange
+    local fireId = server.spawnFire({x = 1, y = 2, z = 3}, 2, 3, false, false, false, 1, 4);
+
+    -- Act
+    server.setFireData(fireId, true, false);
+
+    -- Assert
+    lu.assertIsTrue(server.objects[1].is_lit);
+end
+function TestSW:testGetFireData()
+    -- Arrange
+    local fireId = server.spawnFire({x = 1, y = 2, z = 3}, 2, 3, false, false, false, 1, 4);
+    server.setFireData(fireId, true, false);
+
+    -- Act
+    local lit = server.getFireData(fireId);
+
+    -- Assert
+    lu.assertIsTrue(lit);
+end
+function TestSW:testGetOceanTransform()
+    server.getOceanTransform()
+end
+function TestSW:testIsInTransformArea()
+    server.isInTransformArea()
+end
 
 local runner = lu.LuaUnit.new();
 os.exit(runner:run());
