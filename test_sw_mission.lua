@@ -393,6 +393,177 @@ function TestSW:testSetVehicleEditable()
     lu.assertEquals(server.vehicles[1].editable, false);
 end
 
+function TestSW:testGetPlaylistIndexByName()
+    -- Arrange
+    server.playlists[1] = {
+        name = "MyPlaylist"
+    };
+
+    -- Act
+    local index = server.getPlaylistIndexByName("MyPlaylist");
+
+    -- Assert
+    lu.assertEquals(index, 1);
+end
+function TestSW:testGetLocationIndexByName()
+    -- Arrange
+    server.playlists[1] = {
+        name = "MyPlaylist",
+        locations = {
+            [1] = {
+                name = "MyLocation"
+            }
+        }
+    };
+
+    -- Act
+    local index = server.getLocationIndexByName(1, "MyLocation");
+
+    -- Assert
+    lu.assertEquals(index, 1);
+end
+function TestSW:testSpawnThisPlaylistMissionLocation()
+    -- Arrange
+    server.playlists.currentPlaylistIndex = 1;
+    server.playlists[1] = {
+        name = "MyPlaylist",
+        locations = {
+            [1] = {
+                name = "MyLocation"
+            }
+        }
+    };
+
+    -- Act
+    server.spawnThisPlaylistMissionLocation("MyLocation");
+
+    -- Assert
+    lu.assertIsTrue(server.playlists[1].locations[1].spawned);
+end
+function TestSW:testSpawnMissionLocation()
+    error("Matrix object not implemented");
+end
+function TestSW:testGetPlaylistPath()
+    -- Arrange
+    local playlistPath = "./MyPlaylist.xml";
+    server.playlists[1] = {
+        name = "MyPlaylist",
+        filePath = playlistPath;
+    };
+
+    -- Act
+    local resultPlaylistPath = server.getPlaylistPath("MyPlaylist", false);
+
+    -- Assert
+    lu.assertEquals(resultPlaylistPath, playlistPath);
+end
+function TestSW:testSpawnObject()
+    server.spawnObject({x = 1, y = 2, z = 3}, 9);
+end
+function TestSW:testGetObjectPos()
+    -- Act
+    local objectId = server.spawnObject({x = 1, y = 2, z = 3}, 21);
+
+    -- Assert
+    lu.assertEquals(server.objects[1].type, 21);
+
+end
+function TestSW:testGetObjectPos()
+    -- Arrange
+    local objectPos = {x = 1, y = 2, z = 3};
+    local objectId = server.spawnObject(objectPos, 21);
+
+    -- Assert
+    local found, pos = server.getObjectPos(objectId);
+
+    -- Assert
+    lu.assertEquals(found, false);
+    lu.assertEquals(pos, objectPos);
+end
+function TestSW:testSpawnFire()
+    -- Act
+    local fireId = server.spawnFire({x = 1, y = 2, z = 3}, 2, 3, false, false, false, 1, 4);
+
+    -- Assert
+    lu.assertNotIsNil(server.objects[1])
+end
+function TestSW:testDespawnObject()
+    -- Arrange
+    local objectId = server.spawnObject({x = 1, y = 2, z = 3}, 21);
+
+    -- Act
+    server.despawnObject(objectId, true);
+
+    -- Assert
+    lu.assertIsNil(server.objects[1])
+end
+function TestSW:testSpawnCharacter()
+    -- Act
+    local objectId = server.spawnCharacter({x = 1, y = 2, z = 3}, 7);
+
+    -- Assert
+    lu.assertEquals(server.objects[1].outfit_id, 7);
+end
+function TestSW:testSpawnAnimal()
+    -- Act
+    local objectId = server.spawnAnimal({x = 1, y = 2, z = 3}, 1);
+
+    -- Assert
+    lu.assertEquals(server.objects[1].animal_type, 1);
+end
+function TestSW:testDespawnCharacter()
+    -- Arrange
+    local objectId = server.spawnCharacter({x = 1, y = 2, z = 3}, 7);
+
+    -- Act
+    server.despawnCharacter(objectId, true);
+
+    -- Assert
+    lu.assertIsNil(server.objects[1]);
+end
+function TestSW:testGetCharacterData()
+    -- Arrange
+    local objectId = server.spawnCharacter({x = 1, y = 2, z = 3}, 7);
+
+    -- Act
+    local hp, pos, incapacitated, dead = server.getCharacterData(objectId);
+
+    -- Arrange
+    lu.assertEquals(hp, 1);
+end
+function TestSW:testSetCharacterData()
+    -- Arrange
+    local objectId = server.spawnCharacter({x = 1, y = 2, z = 3}, 7);
+
+    -- Act
+    server.setCharacterData(objectId, .5, true);
+
+    -- Arrange
+    lu.assertEquals(server.objects[1].hp, .5);
+end
+function TestSW:testSetCharacterItem()
+    -- Arrange
+    local objectId = server.spawnCharacter({x = 1, y = 2, z = 3}, 7);
+
+    -- Act
+    server.setCharacterItem(objectId, 3, 17, false);
+
+    -- Arrange
+    lu.assertEquals(server.objects[1].inventory[3], 17);
+end
+function TestSW:testGetZones()
+    -- Arrange
+    server.zones[1] = {
+        tags = {
+            "CoolCar"
+        }
+    }
+    -- Act
+    local zones = server.getZones("AnotherTag", "CoolCar");
+
+    -- Assert
+    lu.assertEquals(zones[1].tags[1], server.zones[1].tags[1]);
+end
 
 local runner = lu.LuaUnit.new();
 os.exit(runner:run());

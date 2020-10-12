@@ -400,7 +400,7 @@ end
 --Mission
 function server.getPlaylistIndexByName(name)
     for playListIndex = 1, #server.playlists do
-        if server.playlists[playListIndex] == name then
+        if server.playlists[playListIndex].name == name then
             return playListIndex;
         end
     end
@@ -414,7 +414,7 @@ end
 function server.getLocationIndexByName(playlist_index, name)
     assureParameterInBounds("playlist_index", playlist_index, 1);
     getOrSetArr(server.playlists[playlist_index].locations, {});
-    for locationIndex = 1, server.playlists[playlist_index].locations do
+    for locationIndex = 1, #server.playlists[playlist_index].locations do
         if server.playlists[playlist_index].locations[locationIndex].name == name then
             return locationIndex;
         end
@@ -438,19 +438,26 @@ end
 function server.getPlaylistPath(playlist_name, is_rom)
     local playlistIndex = server.getPlaylistIndexByName(playlist_name);
     assureNotNil("playlistIndex", playlistIndex);
-    local playList = server.playlists[playListIndex];
+    local playList = server.playlists[playlistIndex];
     assureNotNil("playList", playList);
     return playList.filePath;
 end
 function server.spawnObject(matrix, OBJECT_TYPE)
     assureParameterInBounds("OBJECT_TYPE", OBJECT_TYPE, 0, 63);
-    printf("Object '%d' spawned at " .. matrix, OBJECT_TYPE);
+    local objectIndex = #server.objects + 1;
+    local objectId = getRandomId();
+    getOrSetArr(server.objects, objectIndex);
+    server.objects[objectIndex].id = objectId;
+    server.objects[objectIndex].type = OBJECT_TYPE;
+    server.objects[objectIndex].is_found = false;
+    server.objects[objectIndex].pos = matrix;
+    return objectId;
 end
 function server.getObjectPos(object_id)
     assureParameterInBounds("object_id", object_id, 1);
     local object = getArrayElementById(server.objects, object_id);
     assureNotNil("object", object);
-    return object.is_found, objects.pos;
+    return object.is_found, object.pos;
 end
 function server.spawnFire(matrix, size, magnitude, is_lit, is_initialzied, is_explosive, parent_vehicle_id, explosion_magnitude)
     assureParameterInBounds("parent_vehicle_id", parent_vehicle_id, 1);
@@ -480,18 +487,22 @@ function server.spawnCharacter(matrix, outfit_id)
     server.objects[characterIndex].id = characterId;
     server.objects[characterIndex].outfit_id = outfit_id;
     server.objects[characterIndex].pos = matrix;
+    server.objects[characterIndex].is_incapacitated = false;
+    server.objects[characterIndex].hp = 1;
+    server.objects[characterIndex].is_dead = false;
     return characterId;
 end
 function server.spawnAnimal(matrix, animal_type, scale)
     -- Animal Types are not documented, trial and error needed
     assureParameterInBounds("animal_type", animal_type, 1);
-    local characterId = getRandomId();
-    local characterIndex = #server.objects + 1;
-    getOrSetArr(server.objects, characterIndex);
-    server.objects[characterIndex].id = characterId;
-    server.objects[characterIndex].outfit_id = outfit_id;
-    server.objects[characterIndex].pos = matrix;
-    return characterId;
+    local objectId = getRandomId();
+    local objectIndex = #server.objects + 1;
+    getOrSetArr(server.objects, objectIndex);
+    server.objects[objectIndex].id = objectId;
+    server.objects[objectIndex].pos = matrix;
+    server.objects[objectIndex].animal_type = animal_type;
+    server.objects[objectIndex].scale = scale;
+    return objectId;
 end
 function server.despawnCharacter(object_id, is_instant)
     assureParameterInBounds("object_id", object_id, 1);
@@ -512,16 +523,21 @@ function server.setCharacterData(object_id, hp, is_interactable)
 end
 function server.setCharacterItem(object_id, slot, EQUIPMENT_ID, is_active)
     assureParameterInBounds("object_id", object_id, 1);
+    assureParameterInBounds("slot", slot, 1, 6);
     assureParameterInBounds("EQUIPMENT_ID", EQUIPMENT_ID, 0, 27);
     local character = getArrayElementById(server.objects, object_id);
     assureNotNil("character", character);
+    getOrSetArr(character, "inventory");
+    character.inventory[slot] = EQUIPMENT_ID;
+    if is_active then
+        character.activeSlot = slot;
+    end
     printf("Character '%d' has item '%d' on slot %d and it's " .. (is_active and "active" or "not active"), object_id, slot, EQUIPMENT_ID);
 end
 function server.getTutorial()
     return server.playlists.tutorial and server.playlists.tutorial or false;
 end
 function server.getZones(tags, ...)
-    local tagEqualityCount = 0;
     local resultTags = {};
     for zoneIndex = 1, #server.zones do
         for tagIndex = 1, #server.zones[zoneIndex].tags do
