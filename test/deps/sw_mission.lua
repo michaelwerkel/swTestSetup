@@ -66,7 +66,7 @@ function assureValueInArray(arrRoot, value)
             return true
         end
     end
-    error("'" .. value .. "' not in array.");
+    error(string.format("'%s' not in array.", value));
 end
 function getOrSetArr(root, index)
     if root[index] then
@@ -602,7 +602,7 @@ end
 
 --Game
 function server.setGameSetting(GAME_SETTING, value)
-    assureValueInArray(server.gameSettings.GAME_SETTINGS, value);
+    assureValueInArray(server.gameSettings.GAME_SETTINGS, GAME_SETTING);
     server.gameSettings.settings[GAME_SETTING] = value;
 end
 function server.getGameSettings()
@@ -634,8 +634,5 @@ function server.test_setTilePurchased(matrix, purchased)
     server.tiles[tileIndex].matrix = matrix;
 end
 function server.getTilePurchased(matrix)
-    for tileIndex = 1, #server.tiles do
-        -- check if matrices equal
-        -- return whether the tile is purchased
-    end
+    error("Matrix not implemented.");
 end

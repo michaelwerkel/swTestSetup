@@ -603,6 +603,31 @@ end
 function TestSW:testIsInTransformArea()
     server.isInTransformArea()
 end
+function TestSW:testSetGameSetting()
+    -- Act
+    server.setGameSetting("despawn_on_leave", true);
+
+    -- Assert
+    lu.assertIsTrue(server.gameSettings.settings["despawn_on_leave"])
+end
+function TestSW:testSetCurrency()
+    -- Act
+    server.setCurrency(112, 113);
+
+    --Assert
+    lu.assertEquals(server.gameSettings.money, 112);
+    lu.assertEquals(server.gameSettings.research, 113);
+end
+function TestSW:testGetTilePurchased()
+    -- Arrange
+    server.test_setTilePurchased({x = 1, y = 2, z = 3});
+
+    -- Act
+    local purchased = server.getTilePurchased({x = 1, y = 2, z = 3});
+
+    -- Assert
+    lu.assertIsTrue(purchased);
+end
 
 local runner = lu.LuaUnit.new();
 os.exit(runner:run());
