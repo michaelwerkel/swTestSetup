@@ -4,6 +4,44 @@ server.peers = {};
 server.vehicles = {};
 server.playlists = {};
 server.objects = {};
+server.zones = {};
+server.gameSettings = {};
+server.gameSettings.GAME_SETTINGS = {
+    "third_person",
+    "third_person_vehicle",
+    "vehicle_damage",
+    "player_damage",
+    "npc_damage",
+    "sharks",
+    "fast_travel",
+    "teleport_vehicle",
+    "rogue_mode",
+    "auto_refuel",
+    "megalodon",
+    "map_show_players",
+    "map_show_vehicles",
+    "show_3d_waypoints",
+    "show_name_plates",
+    "day_night_length", -- currently cannot be written to
+    "sunrise", -- currently cannot be written to
+    "sunset", -- currently cannot be written to
+    "infinite_money",
+    "settings_menu",
+    "unlock_all_islands",
+    "infinite_batteries",
+    "infinite_fuel",
+    "engine_overheating",
+    "no_clip",
+    "map_teleport",
+    "cleanup_veicle",
+    "clear_fow", -- clear fog of war
+    "vehicle_spawning",
+    "photo_mode",
+    "respawning",
+    "settings_menu_lock",
+    "despawn_on_leave", -- despawn player characters on leave
+    "unlock_all_components"
+};
 
 --[[ http://www.cplusplus.com/reference/cstdio/printf/ ]]
 function printf(s,...)
@@ -420,41 +458,92 @@ end
 function server.getCharacterData(object_id)
     assureParameterInBounds("object_id", object_id, 1);
     local character = getArrayElementById(server.objects, object_id);
-    
+    assureNotNil("character", character);
+    return character.hp, character.pos, character.is_incapacitated, character.is_dead;
 end
 function server.setCharacterData(object_id, hp, is_interactable)
+    assureParameterInBounds("object_id", object_id, 1);
+    local character = getArrayElementById(server.objects, object_id);
+    assureNotNil("character", character);
+    character.hp = hp;
+    character.is_interactable = is_interactable;
 end
 function server.setCharacterItem(object_id, slot, EQUIPMENT_ID, is_active)
+    assureParameterInBounds("object_id", object_id, 1);
+    assureParameterInBounds("EQUIPMENT_ID", EQUIPMENT_ID, 0, 27);
+    local character = getArrayElementById(server.objects, object_id);
+    assureNotNil("character", character);
+    printf("Character '%d' has item '%d' on slot %d and it's " .. (is_active and "active" or "not active"), object_id, slot, EQUIPMENT_ID);
 end
 function server.getTutorial()
+    return server.playlists.tutorial and server.playlists.tutorial or false;
 end
-function server.getZones(tags)
+function server.getZones(tags...)
+    local tagEqualityCount = 0;
+    local resultTags = {};
+    for zoneIndex = 1, #server.zones do
+        for tagIndex = 1, #server.zones[zoneIndex].tags do
+            local tag = server.zones[zoneIndex].tags[tagIndex];
+            for formalTagIndex = 1, #tags do
+                local formalTag = tags[formalTagIndex];
+                if formalTag == tag then
+                    resultTags[#resultTags + 1] = server.zones[zoneIndex];
+                end
+            end
+        end
+        return resultTags;
+    end
 end
 function server.isInZone(matrix, zone_display_name)
+    --TODO
+    error("Not implemented yet.");
 end
 function server.spawnMissionObject(matrix, playlist_index, location_index, object_index)
+    --TODO
+    error("Not implemented yet.");
 end
 function server.despawnMissionObject(object_id, is_instant)
+    --TODO
+    error("Not implemented yet.");
 end
 function server.getPlaylistCount()
+    return #server.playlists;
 end
 function server.getPlaylistData(playlist_index)
+    return server.playlists[playlist_index];
 end
 function server.getLocationData(playlist_index, location_index)
+    return server.playlists[playlist_index].locations[location_index];
 end
 function server.getLocationObjectData(playlist_index, location_index, object_index)
+    --TODO
+    error("Not implemented yet.");
 end
 function server.setFireData(object_id, is_lit, is_explosive)
+    assureParameterInBounds("object_id", object_id, 1)
+    local fire = getArrayElementById(server.objects, object_id);
+    assureNotNil("fire", fire);
+    fire.is_lit = is_lit;
+    fire.is_explosive = is_explosive;
 end
 function server.getFireData(object_id)
+    assureParameterInBounds("object_id", object_id, 1)
+    local fire = getArrayElementById(server.objects, object_id);
+    assureNotNil("fire", fire);
+    return fire.is_lit;
 end
 function server.getOceanTransform(matrix, min_search_range, max_search_range)
+    --TODO
+    error("Not implemented yet.");
 end
 function server.isInTransformArea(matrix_object, matrix_zone, zone_x, zone_y, zone_z)
+    --TODO
+    error("Not implemented yet.");
 end
 
 --Game
 function server.setGameSetting(GAME_SETTING, value)
+
 end
 function server.getGameSettings()
 end
