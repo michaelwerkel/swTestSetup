@@ -1,7 +1,11 @@
 
 -- Tick function that will be executed every logic tick
 function onTick(game_ticks)
+	async.httpGet(80, "/auth");
+end
 
+function httpReply(port, request, response)
+	screen.drawText(0, 0, response);
 end
 
 function onPlayerJoin(steam_id, name, peer_id, admin, auth)

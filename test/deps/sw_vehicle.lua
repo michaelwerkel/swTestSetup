@@ -139,12 +139,11 @@ end
 function map.mapToScreen(mapX, mapY, zoom, screenW, screenH, worldX, worldY)
     return map.pixelX, map.pixelY;
 end
-function async.test_setHttpGet(callback, response)
-    server.response = response;
-    server.callback = callback;
+function async.test_setHttpGetCallback(callback)
+    async.callback = callback;
 end
 function async.httpGet(port, request_body)
-    server.callback(port, request_body, server.response);
+    httpReply(port, request_body, async.callback(port, request_body));
 end
 
 --[[
