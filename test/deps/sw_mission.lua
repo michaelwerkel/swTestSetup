@@ -92,19 +92,15 @@ end
 function getRandomId()
     return math.random(1, 999999);
 end
-function getArrayElementById(arrRoot, id)
+function getArrayElementBy(arrRoot, index, id)
     for _, element in pairs(arrRoot) do
-        if element.id == id then
+        if element[index] == id then
             return element;
         end
     end
 end
 function getArrayElementById(arrRoot, id)
-    for _, element in pairs(arrRoot) do
-        if element.id == id then
-            return element;
-        end
-    end
+    return getArrayElementBy(arrRoot, "id", id);
 end
 function destroyArrayElementById(arrRoot, id)
     for elementIndex, element in pairs(arrRoot) do
@@ -756,7 +752,7 @@ function server.event_chatMessage(player_peer_id, message)
         onChatMessage(peer.name, message);
     end
 end
-function server.event_playerJoin(steamid, name, isAdmin, isAuthed)
+function server.event_playerJoin(steamid, peerId, name, isAdmin, isAuthed)
     if #server.peers == 0 then
         server.peers[1] = {
             id = 0,
@@ -767,7 +763,6 @@ function server.event_playerJoin(steamid, name, isAdmin, isAuthed)
             onPlayerJoin(server.peers[1].id, server.peers[1].name, 0, true, true);
         end
     end
-    local peerId = getRandomId();
     local peerIndex = #server.peers + 1;
     local peer = getOrSetArr(server.peers, peerIndex);
     peer.id = peerId;
@@ -775,8 +770,9 @@ function server.event_playerJoin(steamid, name, isAdmin, isAuthed)
     peer.name = name;
     peer.admin = isAdmin;
     peer.auth = isAuthed;
+    server.notify(-1, "[Server]", name .. " joined the game", 5);
     if onPlayerJoin then
-        onPlayerJoin(steamid, name, peerId, isAdmin, isAuthed);
+        onPlayerJoin(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
     end
     return peerId;
 end
@@ -786,6 +782,7 @@ function server.event_playerLeave(peer_id)
     if onPlayerLeave then
         onPlayerLeave(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
     end
+    server.notify(-1, "[Server]", name .. " left the game", 6);
     destroyArrayElementById(server.peers, peer_id);
 end
 function server.event_playerDie(peer_id)
