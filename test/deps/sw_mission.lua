@@ -1,3 +1,5 @@
+local modMatrix = require("test/deps/mod_matrix");
+
 server = {};
 server.mapObjects = {};
 server.peers = {};
@@ -44,6 +46,7 @@ server.gameSettings.GAME_SETTINGS = {
     "unlock_all_components"
 };
 server.tiles = {};
+matrix = {};
 
 --[[ http://www.cplusplus.com/reference/cstdio/printf/ ]]
 function printf(s,...)
@@ -635,4 +638,26 @@ function server.test_setTilePurchased(matrix, purchased)
 end
 function server.getTilePurchased(matrix)
     error("Matrix not implemented.");
+end
+
+function matrix.multiply(matrix1, matrix2)
+    
+end
+function matrix.invert(matrix)
+end
+function matrix.transpose(matrix)
+end
+function matrix.identity()
+end
+function matrix.rotationX(radians)
+end
+function matrix.rotationY(radians)
+end
+function matrix.rotationZ(radians)
+end
+function matrix.translation(x,y,z)
+end
+function matrix.position(matrix)
+end
+function matrix.distance(matrix1, matrix2)
 end
