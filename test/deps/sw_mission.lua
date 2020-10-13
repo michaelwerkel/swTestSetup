@@ -575,7 +575,9 @@ function server.spawnMissionObject(matrix, playlist_index, location_index, objec
     assureNotNil("matrix", matrix);
     assureNotNil("server.playlists[playlist_index]", server.playlists[playlist_index]);
     assureNotNil("server.playlists[playlist_index].locations[location_index]", server.playlists[playlist_index].locations[location_index]);
-    local object = server.playlists[playlist_index].locations[location_index].objects[object_index];
+    local objectId = server.playlists[playlist_index].locations[location_index].objects[object_index];
+    assureNotNil("objectId", objectId);
+    local object = getArrayElementById(server.objects, objectId);
     assureNotNil("object", object);
     object.spawned = true;
     printf("Spawned object %d of playlist %d and its location %d", object_index, playlist_index, location_index);
@@ -585,7 +587,7 @@ function server.despawnMissionObject(object_id, is_instant)
     local object = getArrayElementById(server.objects, object_id);
     assureNotNil("object", object);
     object.spawned = false;
-    printf("Despawned object with id %d" .. (is_instant and "" or " not") .. " instantly", object_id);
+    printf("Despawned object with id %d" .. (is_instant and "instantly" or ""), object_id);
 end
 function server.getPlaylistCount()
     return #server.playlists;
@@ -601,6 +603,7 @@ function server.getLocationObjectData(playlist_index, location_index, object_ind
     assureNotNil("server.playlists[playlist_index]", server.playlists[playlist_index]);
     assureNotNil("server.playlists[playlist_index].locations[location_index]", server.playlists[playlist_index].locations[location_index]);
     local object = server.playlists[playlist_index].locations[location_index].objects[object_index];
+    assureNotNil("object", object);
     return object;
 end
 function server.setFireData(object_id, is_lit, is_explosive)
@@ -796,7 +799,7 @@ function server.event_playerLeave(peer_id)
     if onPlayerLeave then
         onPlayerLeave(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
     end
-    server.notify(-1, "[Server]", name .. " left the game", 6);
+    server.notify(-1, "[Server]", peer.name .. " left the game", 6);
     destroyArrayElementById(server.peers, peer_id);
 end
 function server.event_playerDie(peer_id)
@@ -812,13 +815,7 @@ function server.event_vehicleSpawn(peer_id, vehicleName, x, y, z)
     vehicle.id = vehicleId;
     vehicle.owner = peer_id;
     vehicle.name = vehicleName;
-    local pos = getOrSetArr(vehicle, "pos");
-    -- Set position of voxel 0,0,0 to specific
-    pos[0] = {
-        [0] = {
-            [0] = {x, y, z}
-        }
-    };
+    vehicle.pos = {x, y, z};
     if onVehicleSpawn then
         onVehicleSpawn(vehicleId, peer_id, x, y, z);
     end

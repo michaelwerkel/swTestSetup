@@ -18,17 +18,17 @@ function TestSW:testAnnounce()
 end
 function TestSW:testWhisper()
     --Arrange
-    server.peers[1] = {};
+    local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", false, false);
     
     --Act
-    server.whisper(1, "Hi");
+    server.whisper(peerId, "Hi");
 end
 function TestSW:testNotify()
     --Arrange
-    server.peers[1] = {};
+    local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", false, false);
     
     --Act
-    server.notify(1, "Welcome!", "Hello dude!", 4);
+    server.notify(peerId, "Welcome!", "Hello dude!", 4);
 end
 function TestSW:testGetMapID()
     --Arrange
@@ -568,13 +568,69 @@ function TestSW:testIsInZone()
     server.isInZone()
 end
 function TestSW:testSpawnMissionObject()
-    server.spawnMissionObject();
+    -- Arrange
+    server.objects[1] = {
+        id = 123
+    }
+    server.playlists[1] = {
+        locations = {
+            [1] = {
+                objects = {
+                    [1] = 123
+                }
+            }
+        }
+    }
+
+    -- Act
+    local objectId = server.spawnMissionObject({0, 0, 0}, 1, 1, 1);
+
+    -- Assert
+    lu.assertIsTrue(server.objects[1].spawned);
 end
 function TestSW:testDespawnMissionObject()
-    server.despawnMissionObject();
+    -- Arrange
+    server.objects = {
+        [1] = {
+            id = 123
+        }
+    }
+    server.playlists[1] = {
+        locations = {
+            [1] = {
+                objects = {
+                    [1] = 123
+                }
+            }
+        }
+    }
+
+    local objectId = server.spawnMissionObject({0, 0, 0}, 1, 1, 1);
+
+    -- Act
+    server.despawnMissionObject(objectId);
+
+    -- Assert
+    lu.assertIsFalse(server.objects[1].spawned);
 end
 function TestSW:testGetLocationObjectData()
-    server.getLocationObjectData();
+    -- Arrange
+    server.playlists[1] = {
+        locations = {
+            [1] = {
+                objects = {
+                    {}
+                }
+            }
+        }
+    }
+    local objectId = server.spawnMissionObject({0, 0, 0}, 1, 1, 1);
+
+    -- Act
+    local objectData = server.getLocationObjectData(1, 1, 1);
+
+    -- Assert
+    lu.assertIsTrue(objectData.spawned);
 end
 function TestSW:testSetFireData()
     -- Arrange
@@ -633,24 +689,24 @@ function TestSW:test_event_playerJoin()
 
     -- Arrange
     -- Act
-    server.event_playerJoin(123, "ActionedPlayer", true, true);
+    server.event_playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
 
     -- Assert
-    lu.assertEquals(server.peers[1].steamid, 123);
+    lu.assertEquals(server.peers[2].steamid, 123);
 end
 function TestSW:test_event_playerLeave()
     -- Arrange
-    local peerId = server.event_playerJoin(123, "ActionedPlayer", true, true);
+    local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
 
     -- Act
     server.event_playerLeave(peerId);
 
     -- Assert
-    lu.assertIsNil(server.peers[1]);
+    lu.assertIsNil(server.peers[2]);
 end
 function TestSW:test_event_vehicleSpawn()
     -- Arrange
-    local peerId = server.event_playerJoin(123, "ActionedPlayer", true, true);
+    local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
 
     -- Act
     local vehicleId = server.event_vehicleSpawn(peerId, "AP's Vehicle", 0, 0, 0);
@@ -660,7 +716,7 @@ function TestSW:test_event_vehicleSpawn()
 end
 function TestSW:test_event_playerTeleportVehicle()
     -- Arrange
-    local peerId = server.event_playerJoin(123, "ActionedPlayer", true, true);
+    local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
     local vehicleId = server.event_vehicleSpawn(peerId, "AP's Vehicle", 1, 2, 3);
 
     -- Act
