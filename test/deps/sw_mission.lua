@@ -1,5 +1,7 @@
 local modMatrix = require("test/deps/mod_matrix");
 
+g_savedata = {};
+
 server = {};
 server.mapObjects = {};
 server.peers = {};
@@ -53,14 +55,15 @@ function printf(s,...)
     return print(s:format(...));
 end
 
-function assureParameterInBounds(name, value, min, max)
-    if value < min or (max and (value > max) or false) then
-        error(name .. " out of bounds.");
-    end
-end
 function assureNotNil(name, value)
     if not value then
         error(name .. " doesn't exist.");
+    end
+end
+function assureParameterInBounds(name, value, min, max)
+    assureNotNil("min", min);
+    if value < min or (max and (value > max) or false) then
+        error(name .. " out of bounds.");
     end
 end
 function assureValueInArray(arrRoot, value)
@@ -123,10 +126,10 @@ function server.notify(peer_id, title, message, NOTIFICATION_TYPE)
     assureParameterInBounds("peer_id", peer_id, -1);
     assureParameterInBounds("NOTIFICATION_TYPE", NOTIFICATION_TYPE, 0, 9);
     if peer_id == -1 then
-        printf("Notifiing all peers with '%s', '%s', %d", title, message, NOTIFICATION_TYPE)
+        printf("Notifying all peers with '%s', '%s', %d", title, message, NOTIFICATION_TYPE)
     else
         assureNotNil("server.peers[peer_id]", server.peers[peer_id])
-        printf("Notifiing peer %d with '%s', '%s', %d", peer_id, title, message, NOTIFICATION_TYPE)
+        printf("Notifying peer %d with '%s', '%s', %d", peer_id, title, message, NOTIFICATION_TYPE)
     end
 end
 function server.getMapID()
@@ -638,6 +641,52 @@ function server.test_setTilePurchased(matrix, purchased)
 end
 function server.getTilePurchased(matrix)
     error("Matrix not implemented.");
+end
+--[[Set callback to httpReply to make the script answer.]]
+function server.test_setHttpGetCallback(callback)
+    server.callback = callback;
+end
+function server.httpGet(port, request_body)
+    return server.callback(port, request_body);
+end
+
+-- admin
+-- added with v1.0
+function server.banPlayer(peer_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    local peer = getArrayElementById(server.peers, peer_id);
+    assureNotNil("peer", peer);
+    peer.isBanned = true;
+end
+function server.kickPlayer(peer_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    local peer = getArrayElementById(server.peers, peer_id);
+    assureNotNil("peer", peer);
+    peer.gotKicked = true;
+end
+function server.addAdmin(peer_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    local peer = getArrayElementById(server.peers, peer_id);
+    assureNotNil("peer", peer);
+    peer.isAdmin = true;
+end
+function server.removeAdmin(peer_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    local peer = getArrayElementById(server.peers, peer_id);
+    assureNotNil("peer", peer);
+    peer.isAdmin = false;
+end
+function server.addAuth(peer_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    local peer = getArrayElementById(server.peers, peer_id);
+    assureNotNil("peer", peer);
+    peer.isAuthed = true;
+end
+function server.removeAuth(peer_id)
+    assureParameterInBounds("peer_id", peer_id, -1);
+    local peer = getArrayElementById(server.peers, peer_id);
+    assureNotNil("peer", peer);
+    peer.isAuthed = false;
 end
 
 function matrix.multiply(matrix1, matrix2)

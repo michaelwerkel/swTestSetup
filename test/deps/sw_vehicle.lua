@@ -3,6 +3,7 @@ output = {};
 property = {};
 screen = {};
 map = {};
+async = {};
 
 --[[ http://www.cplusplus.com/reference/cstdio/printf/ ]]
 function printf(s,...)
@@ -138,11 +139,25 @@ end
 function map.mapToScreen(mapX, mapY, zoom, screenW, screenH, worldX, worldY)
     return map.pixelX, map.pixelY;
 end
-
-function server.test_setHttpGet(callback, response)
+function async.test_setHttpGet(callback, response)
     server.response = response;
     server.callback = callback;
 end
-function server.httpGet(port, request_body)
+function async.httpGet(port, request_body)
     server.callback(port, request_body, server.response);
 end
+
+--[[
+-- Revised on v0.10.33
+function async.test_setHTTPRequestResponse(success, response)
+    async.success = success;
+    async.response = response;
+end
+function async.HTTPRequest(fail_callback, success_callback, url, method, headers, body)
+    if async.success then
+        success_callback(async.response)
+    else
+        fail_callback()
+    end
+end
+]]

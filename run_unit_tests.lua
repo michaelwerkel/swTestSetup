@@ -1,10 +1,12 @@
-local lu = require("test/deps/luaunit");
+local lu = require("test.deps.luaunit");
 
-local sw_vehicle = require("test/deps/sw_mission");
+require("test.deps.sw_mission");
+require("src.example_script")
 
 function test_exampleScript()
 
     
+
 end
 
 os.exit(lu.LuaUnit.run());
