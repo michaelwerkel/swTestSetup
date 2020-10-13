@@ -764,7 +764,7 @@ function server.event_playerJoin(steamid, name, isAdmin, isAuthed)
             steamid = 90071992547409920
         };
         if onPlayerJoin then
-            onPlayerJoin(steamid, name, 0, isAdmin, isAuthed);
+            onPlayerJoin(server.peers[1].id, server.peers[1].name, 0, true, true);
         end
     end
     local peerId = getRandomId();
