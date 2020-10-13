@@ -343,7 +343,7 @@ function server.getVehiclePos(vehicle_id, voxel_x, voxel_y, voxel_z)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
     if voxel_x and voxel_y and voxel_z then
-        return vehicle.pos[voxel_x][voxel_y][voxel_z];
+        error("Voxel Position are not implemented yet.");
     else
         return vehicle.pos;
     end
@@ -508,8 +508,7 @@ function server.spawnCharacter(matrix, outfit_id)
     return characterId;
 end
 function server.spawnAnimal(matrix, animal_type, scale)
-    -- Animal Types are not documented, trial and error needed
-    assureParameterInBounds("animal_type", animal_type, 1);
+    assureParameterInBounds("animal_type", animal_type, 1, 5);
     local objectId = getRandomId();
     local objectIndex = #server.objects + 1;
     getOrSetArr(server.objects, objectIndex);
@@ -573,12 +572,20 @@ function server.isInZone(matrix, zone_display_name)
     error("Matrix not implemented yet.");
 end
 function server.spawnMissionObject(matrix, playlist_index, location_index, object_index)
-    --TODO
-    error("Matrix not implemented yet.");
+    assureNotNil("matrix", matrix);
+    assureNotNil("server.playlists[playlist_index]", server.playlists[playlist_index]);
+    assureNotNil("server.playlists[playlist_index].locations[location_index]", server.playlists[playlist_index].locations[location_index]);
+    local object = server.playlists[playlist_index].locations[location_index].objects[object_index];
+    assureNotNil("object", object);
+    object.spawned = true;
+    printf("Spawned object %d of playlist %d and its location %d", object_index, playlist_index, location_index);
+    return object.id;
 end
 function server.despawnMissionObject(object_id, is_instant)
-    --TODO
-    error("Matrix not implemented yet.");
+    local object = getArrayElementById(server.objects, object_id);
+    assureNotNil("object", object);
+    object.spawned = false;
+    printf("Despawned object with id %d" .. (is_instant and "" or " not") .. " instantly", object_id);
 end
 function server.getPlaylistCount()
     return #server.playlists;
@@ -590,8 +597,11 @@ function server.getLocationData(playlist_index, location_index)
     return server.playlists[playlist_index].locations[location_index];
 end
 function server.getLocationObjectData(playlist_index, location_index, object_index)
-    --TODO
-    error("Matrix not implemented yet.");
+    assureNotNil("matrix", matrix);
+    assureNotNil("server.playlists[playlist_index]", server.playlists[playlist_index]);
+    assureNotNil("server.playlists[playlist_index].locations[location_index]", server.playlists[playlist_index].locations[location_index]);
+    local object = server.playlists[playlist_index].locations[location_index].objects[object_index];
+    return object;
 end
 function server.setFireData(object_id, is_lit, is_explosive)
     assureParameterInBounds("object_id", object_id, 1)
@@ -701,11 +711,13 @@ function server.removeAuth(peer_id)
 end
 
 function matrix.multiply(matrix1, matrix2)
-    
+    return modMatrix.mul(matrix1, matrix2);
 end
 function matrix.invert(matrix)
+    return modMatrix.invert(matrix);
 end
 function matrix.transpose(matrix)
+    return modMatrix.transpose(matrix);
 end
 function matrix.identity()
 end
@@ -716,8 +728,10 @@ end
 function matrix.rotationZ(radians)
 end
 function matrix.translation(x,y,z)
+    return {x, y, z};
 end
 function matrix.position(matrix)
+    return matrix[1], matrix[2], matrix[3];
 end
 function matrix.distance(matrix1, matrix2)
 end
