@@ -568,15 +568,15 @@ function server.getZones(...)
 end
 function server.isInZone(matrix, zone_display_name)
     --TODO
-    error("Not implemented yet.");
+    error("Matrix not implemented yet.");
 end
 function server.spawnMissionObject(matrix, playlist_index, location_index, object_index)
     --TODO
-    error("Not implemented yet.");
+    error("Matrix not implemented yet.");
 end
 function server.despawnMissionObject(object_id, is_instant)
     --TODO
-    error("Not implemented yet.");
+    error("Matrix not implemented yet.");
 end
 function server.getPlaylistCount()
     return #server.playlists;
@@ -589,7 +589,7 @@ function server.getLocationData(playlist_index, location_index)
 end
 function server.getLocationObjectData(playlist_index, location_index, object_index)
     --TODO
-    error("Not implemented yet.");
+    error("Matrix not implemented yet.");
 end
 function server.setFireData(object_id, is_lit, is_explosive)
     assureParameterInBounds("object_id", object_id, 1)
@@ -606,11 +606,11 @@ function server.getFireData(object_id)
 end
 function server.getOceanTransform(matrix, min_search_range, max_search_range)
     --TODO
-    error("Not implemented yet.");
+    error("Matrix not implemented yet.");
 end
 function server.isInTransformArea(matrix_object, matrix_zone, zone_x, zone_y, zone_z)
     --TODO
-    error("Not implemented yet.");
+    error("Matrix not implemented yet.");
 end
 
 --Game
@@ -675,25 +675,25 @@ function server.addAdmin(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
-    peer.isAdmin = true;
+    peer.admin = true;
 end
 function server.removeAdmin(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
-    peer.isAdmin = false;
+    peer.admin = false;
 end
 function server.addAuth(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
-    peer.isAuthed = true;
+    peer.auth = true;
 end
 function server.removeAuth(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
-    peer.isAuthed = false;
+    peer.auth = false;
 end
 
 function matrix.multiply(matrix1, matrix2)
@@ -738,7 +738,7 @@ function server.event_playerCommand(player_peer_id, chat_command)
         table.insert(commandSplit, c);
     end);
     if onCustomCommand then
-        onCustomCommand("", player_peer_id, peer.isAdmin, peer.isAuthed, table.unpack(commandSplit));
+        onCustomCommand("", player_peer_id, peer.admin, peer.auth, table.unpack(commandSplit));
     end
 end
 function server.event_chatMessage(player_peer_id, message)
@@ -755,8 +755,8 @@ function server.event_playerJoin(steamid, name, isAdmin, isAuthed)
     peer.id = peerId;
     peer.steamid = steamid;
     peer.name = name;
-    peer.isAdmin = isAdmin;
-    peer.isAuthed = isAuthed;
+    peer.admin = isAdmin;
+    peer.auth = isAuthed;
     if onPlayerJoin then
         onPlayerJoin(steamid, name, peerId, isAdmin, isAuthed);
     end
@@ -766,14 +766,14 @@ function server.event_playerLeave(peer_id)
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     if onPlayerLeave then
-        onPlayerLeave(peer.steamid, peer.name, peer.id, peer.isAdmin, peer.isAuthed);
+        onPlayerLeave(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
     end
     destroyArrayElementById(server.peers, peer_id);
 end
 function server.event_playerDie(peer_id)
     local peer = getArrayElementById(server.peers);
     if onPlayerDie then
-        onPlayerDie(peer.steamid, peer.name, peer.id, peer.isAdmin, peer.isAuthed);
+        onPlayerDie(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
     end
 end
 function server.event_vehicleSpawn(peer_id, vehicleName, x, y, z)
