@@ -346,7 +346,11 @@ function server.getVehiclePos(vehicle_id, voxel_x, voxel_y, voxel_z)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
-    return vehicle.pos[voxel_x][voxel_y][voxel_z];
+    if voxel_x and voxel_y and voxel_z then
+        return vehicle.pos[voxel_x][voxel_y][voxel_z];
+    else
+        return vehicle.pos;
+    end
 end
 function server.getVehicleName(vehicle_id)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
@@ -753,6 +757,16 @@ function server.event_chatMessage(player_peer_id, message)
     end
 end
 function server.event_playerJoin(steamid, name, isAdmin, isAuthed)
+    if #server.peers == 0 then
+        server.peers[1] = {
+            id = 0,
+            name = "Server",
+            steamid = 90071992547409920
+        };
+        if onPlayerJoin then
+            onPlayerJoin(steamid, name, 0, isAdmin, isAuthed);
+        end
+    end
     local peerId = getRandomId();
     local peerIndex = #server.peers + 1;
     local peer = getOrSetArr(server.peers, peerIndex);
