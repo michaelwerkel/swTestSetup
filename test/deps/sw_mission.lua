@@ -125,7 +125,8 @@ function server.whisper(peer_id, message)
     if peer_id == -1 then
         printf("Whispering all peers with '%s'", message);
     else
-        assureNotNil("server.peers[peer_id]", server.peers[peer_id])
+        local peer = getArrayElementById(server.peers, peer_id);
+        assureNotNil("peer", peer);
         printf("Whispering peer %d with '%s'", peer_id, message);
     end
 end
@@ -135,7 +136,8 @@ function server.notify(peer_id, title, message, NOTIFICATION_TYPE)
     if peer_id == -1 then
         printf("Notifying all peers with '%s', '%s', %d", title, message, NOTIFICATION_TYPE)
     else
-        assureNotNil("server.peers[peer_id]", server.peers[peer_id])
+        local peer = getArrayElementById(server.peers, peer_id);
+        assureNotNil("peer", peer);
         printf("Notifying peer %d with '%s', '%s', %d", peer_id, title, message, NOTIFICATION_TYPE)
     end
 end
@@ -651,10 +653,12 @@ function server.getTilePurchased(matrix)
 end
 --[[Set callback to httpReply to make the script answer.]]
 function server.test_setHttpGetCallback(callback)
-    server.callback = callback;
+    server.httpGetCallback = callback;
 end
 function server.httpGet(port, request_body)
-    return server.callback(port, request_body);
+    if server.httpGetCallback then
+        return server.httpGetCallback(port, request_body);
+    end
 end
 
 -- admin
