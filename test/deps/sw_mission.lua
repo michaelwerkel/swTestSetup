@@ -50,6 +50,13 @@ server.gameSettings.GAME_SETTINGS = {
 server.tiles = {};
 matrix = {};
 
+-- [[ http://lua-users.org/wiki/SleepFunction ]]
+local clock = os.clock
+function sleep(n)  -- seconds
+  local t0 = clock()
+  while clock() - t0 <= n do end
+end
+
 --[[ http://www.cplusplus.com/reference/cstdio/printf/ ]]
 function printf(s,...)
     return print(s:format(...));
@@ -709,4 +716,94 @@ end
 function matrix.position(matrix)
 end
 function matrix.distance(matrix1, matrix2)
+end
+
+-- Simulation
+
+function server.event_worldCreate(creatingWorld)
+    if onCreate then
+        onCreate(creatingWorld);
+    end
+end
+function server.event_worldExit()
+    if onDestroy then
+        onDestroy()
+    end
+end
+function server.event_playerCommand(player_peer_id, chat_command)
+    local peer = getArrayElementById(server.peers, player_peer_id);
+    assureNotNil("peer", peer);
+    local commandSplit = {};
+    string.gsub(chat_command, " ", function(c)
+        table.insert(commandSplit, c);
+    end);
+    if onCustomCommand then
+        onCustomCommand("", player_peer_id, peer.isAdmin, peer.isAuthed, table.unpack(commandSplit));
+    end
+end
+function server.event_chatMessage(player_peer_id, message)
+    local peer = getArrayElementById(server.peers, player_peer_id);
+    assureNotNil("peer", peer);
+    if onChatMessage then
+        onChatMessage(peer.name, message);
+    end
+end
+function server.event_playerJoin(steamid, name, isAdmin, isAuthed)
+    local peerId = getRandomId();
+    local peerIndex = #server.peers + 1;
+    local peer = getOrSetArr(server.peers, peerIndex);
+    peer.id = peerId;
+    peer.steamid = steamid;
+    peer.name = name;
+    peer.isAdmin = isAdmin;
+    peer.isAuthed = isAuthed;
+    if onPlayerJoin then
+        onPlayerJoin(steamid, name, peerId, isAdmin, isAuthed);
+    end
+    return peerId;
+end
+function server.event_playerLeave(peer_id)
+    local peer = getArrayElementById(server.peers, peer_id);
+    assureNotNil("peer", peer);
+    if onPlayerLeave then
+        onPlayerLeave(peer.steamid, peer.name, peer.id, peer.isAdmin, peer.isAuthed);
+    end
+    destroyArrayElementById(server.peers, peer_id);
+end
+function server.event_playerDie(peer_id)
+    local peer = getArrayElementById(server.peers);
+    if onPlayerDie then
+        onPlayerDie(peer.steamid, peer.name, peer.id, peer.isAdmin, peer.isAuthed);
+    end
+end
+function server.event_vehicleSpawn(peer_id, vehicleName, x, y, z)
+    local vehicleId = getRandomId();
+    local vehicleIndex = #server.vehicles + 1;
+    local vehicle = getOrSetArr(server.vehicles, vehicleIndex);
+    vehicle.id = vehicleId;
+    vehicle.owner = peer_id;
+    vehicle.name = vehicleName;
+    local pos = getOrSetArr(vehicle, "pos");
+    -- Set position of voxel 0,0,0 to specific
+    pos[0] = {
+        [0] = {
+            [0] = {x, y, z}
+        }
+    };
+    if onVehicleSpawn then
+        onVehicleSpawn(vehicleId, peer_id, x, y, z);
+    end
+    return vehicleId;
+end
+function server.event_playerTeleportVehicle(peer_id, vehicle_id, x, y, z)
+    local vehicle = getArrayElementById(server.vehicles, vehicle_id);
+    assureNotNil("vehicle", vehicle);
+    vehicle.pos[0] = {
+        [0] = {
+            [0] = {x, y, z}
+        }
+    };
+    if onVehicleTeleport then
+        onVehicleTeleport(vehicle_id, peer_id, x, y, z);
+    end
 end

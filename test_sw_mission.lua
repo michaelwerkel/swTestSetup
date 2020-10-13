@@ -629,5 +629,46 @@ function TestSW:testGetTilePurchased()
     lu.assertIsTrue(purchased);
 end
 
+function TestSW:test_event_playerJoin()
+
+    -- Arrange
+    -- Act
+    server.event_playerJoin(123, "ActionedPlayer", true, true);
+
+    -- Assert
+    lu.assertEquals(server.peers[1].steamid, 123);
+end
+function TestSW:test_event_playerLeave()
+    -- Arrange
+    local peerId = server.event_playerJoin(123, "ActionedPlayer", true, true);
+
+    -- Act
+    server.event_playerLeave(peerId);
+
+    -- Assert
+    lu.assertIsNil(server.peers[1]);
+end
+function TestSW:test_event_vehicleSpawn()
+    -- Arrange
+    local peerId = server.event_playerJoin(123, "ActionedPlayer", true, true);
+
+    -- Act
+    local vehicleId = server.event_vehicleSpawn(peerId, "AP's Vehicle", 0, 0, 0);
+
+    -- Assert
+    lu.assertEquals(server.vehicles[1].owner, peerId);
+end
+function TestSW:test_event_playerTeleportVehicle()
+    -- Arrange
+    local peerId = server.event_playerJoin(123, "ActionedPlayer", true, true);
+    local vehicleId = server.event_vehicleSpawn(peerId, "AP's Vehicle", 1, 2, 3);
+
+    -- Act
+    server.event_playerTeleportVehicle(peerId, vehicleId, 4, 5, 6);
+
+    -- Assert
+    lu.assertItemsEquals(server.vehicles[1].pos[0][0][0], {4, 5, 6});
+end
+
 local runner = lu.LuaUnit.new();
 os.exit(runner:run());
