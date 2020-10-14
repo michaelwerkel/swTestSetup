@@ -287,7 +287,8 @@ function server.setSeated(peer_id, vehicle_id, seat_name)
     assureNotNil("peer", peer);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
-    -- TODO: Make testable
+    getOrSetArr(vehicle, "seats");
+    vehicle.seats[seat_name] = peer_id;
     printf("Seated peer id %d in %d on %s", peer_id, vehicle_id, seat_name)
 end
 function server.test_setPlayerLookDirection(peer_id, lookDirection)
