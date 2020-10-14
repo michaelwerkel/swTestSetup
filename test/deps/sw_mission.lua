@@ -779,10 +779,10 @@ function server.event_playerJoin(steamid, peerId, name, isAdmin, isAuthed)
         server.peers[1] = {
             id = 0,
             name = "Server",
-            steamid = 90071992547409920
+            steamid = "90071992547409920"
         };
         if onPlayerJoin then
-            onPlayerJoin(server.peers[1].id, server.peers[1].name, 0, true, true);
+            onPlayerJoin(server.peers[1].steamid, server.peers[1].name, 0, true, true);
         end
     end
     local peerIndex = #server.peers + 1;
