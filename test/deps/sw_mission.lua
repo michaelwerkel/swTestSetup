@@ -278,7 +278,7 @@ function server.killPlayer(peer_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
-    -- TODO: Make testable
+    peer.hp = 0;
     printf("Killed peer id %d", peer_id);
 end
 function server.setSeated(peer_id, vehicle_id, seat_name)
@@ -451,7 +451,6 @@ function server.spawnMissionLocation(matrix, playlist_index, location_index)
     end
     server.playlists[playlist_index].locations[location_index].pos = matrix;
     server.playlists[playlist_index].locations[location_index].spawned = true;
-    -- TODO: Return random matrix if matrix is 0,0,0
     return matrix;
 end
 function server.getPlaylistPath(playlist_name, is_rom)
@@ -508,7 +507,6 @@ function server.spawnCharacter(matrix, outfit_id)
     server.objects[characterIndex].pos = matrix;
     server.objects[characterIndex].is_incapacitated = false;
     server.objects[characterIndex].hp = 1;
-    server.objects[characterIndex].is_dead = false;
     return characterId;
 end
 function server.spawnAnimal(matrix, animal_type, scale)
@@ -530,7 +528,7 @@ function server.getCharacterData(object_id)
     assureParameterInBounds("object_id", object_id, 1);
     local character = getArrayElementById(server.objects, object_id);
     assureNotNil("character", character);
-    return character.hp, character.pos, character.is_incapacitated, character.is_dead;
+    return character.hp, character.pos, character.is_incapacitated, character.hp == 0;
 end
 function server.setCharacterData(object_id, hp, is_interactable)
     assureParameterInBounds("object_id", object_id, 1);
