@@ -1,0 +1,10 @@
+{
+    "Lua.diagnostics.globals": [
+        "onCreate",
+        "onDestroy",
+        "onPlayerDie",
+        "onVehicleSpawn",
+        "onVehicleTeleport"
+    ],
+    "Lua.runtime.version": "Lua 5.1"
+}

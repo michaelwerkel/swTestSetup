@@ -292,10 +292,10 @@ function TestSW:testGetVehiclePos()
     -- Arrange
     local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
     local vehiclePos = {x = 4, y = 5, z = 6};
-    server.test_setVehiclePos(vehicleId, 1, 1, 1, vehiclePos);
+    server.test_setVehiclePos(vehicleId, vehiclePos);
 
     -- Act
-    local matrix = server.getVehiclePos(vehicleId, 1, 1, 1);
+    local matrix = server.getVehiclePos(vehicleId);
 
     -- Assert
     lu.assertEquals(matrix, vehiclePos);
@@ -615,11 +615,16 @@ function TestSW:testDespawnMissionObject()
 end
 function TestSW:testGetLocationObjectData()
     -- Arrange
+    server.objects = {
+        [1] = {
+            id = 123
+        }
+    }
     server.playlists[1] = {
         locations = {
             [1] = {
                 objects = {
-                    {}
+                    [1] = 123
                 }
             }
         }
@@ -723,7 +728,7 @@ function TestSW:test_event_playerTeleportVehicle()
     server.event_playerTeleportVehicle(peerId, vehicleId, 4, 5, 6);
 
     -- Assert
-    lu.assertItemsEquals(server.vehicles[1].pos[0][0][0], {4, 5, 6});
+    lu.assertItemsEquals(server.vehicles[1].pos, {4, 5, 6});
 end
 
 local runner = lu.LuaUnit.new();

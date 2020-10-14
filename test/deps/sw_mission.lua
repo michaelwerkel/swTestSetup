@@ -278,6 +278,7 @@ function server.killPlayer(peer_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
+    -- TODO: Make testable
     printf("Killed peer id %d", peer_id);
 end
 function server.setSeated(peer_id, vehicle_id, seat_name)
@@ -286,6 +287,7 @@ function server.setSeated(peer_id, vehicle_id, seat_name)
     assureNotNil("peer", peer);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
+    -- TODO: Make testable
     printf("Seated peer id %d in %d on %s", peer_id, vehicle_id, seat_name)
 end
 function server.test_setPlayerLookDirection(peer_id, lookDirection)
@@ -328,15 +330,11 @@ function server.despawnVehicle(vehicle_id, is_instant)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     destroyArrayElementById(server.vehicles, vehicle_id);
 end
-function server.test_setVehiclePos(vehicle_id, voxel_x, voxel_y, voxel_z, matrix)
+function server.test_setVehiclePos(vehicle_id, matrix)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
-    vehicle.pos[voxel_x] = {
-        [voxel_y] = {
-            [voxel_z] = matrix;
-        }
-    };
+    vehicle.pos = matrix;
 end
 function server.getVehiclePos(vehicle_id, voxel_x, voxel_y, voxel_z)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
@@ -367,6 +365,7 @@ function server.pressVehicleButton(vehicle_id, button_name)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
+    -- TODO: Make testable
     printf("Button '%s' of vehicle '%d' has been pressed.", button_name, vehicle_id);
 end
 function server.test_setVehicleFireCount(vehicle_id, count)
@@ -447,7 +446,7 @@ function server.spawnMissionLocation(matrix, playlist_index, location_index)
     assureParameterInBounds("playlist_index", playlist_index, 1);
     server.playlists[playlist_index].locations[location_index].pos = matrix;
     server.playlists[playlist_index].locations[location_index].spawned = true;
-    --TODO: Return random matrix if matrix is 0,0,0
+    -- TODO: Return random matrix if matrix is 0,0,0
     return matrix;
 end
 function server.getPlaylistPath(playlist_name, is_rom)
@@ -568,7 +567,7 @@ function server.getZones(...)
     end
 end
 function server.isInZone(matrix, zone_display_name)
-    --TODO
+    -- TODO
     error("Matrix not implemented yet.");
 end
 function server.spawnMissionObject(matrix, playlist_index, location_index, object_index)
@@ -602,7 +601,9 @@ function server.getLocationObjectData(playlist_index, location_index, object_ind
     assureNotNil("matrix", matrix);
     assureNotNil("server.playlists[playlist_index]", server.playlists[playlist_index]);
     assureNotNil("server.playlists[playlist_index].locations[location_index]", server.playlists[playlist_index].locations[location_index]);
-    local object = server.playlists[playlist_index].locations[location_index].objects[object_index];
+    local objectId = server.playlists[playlist_index].locations[location_index].objects[object_index];
+    assureNotNil("objectId", objectId);
+    local object = getArrayElementById(server.objects, objectId);
     assureNotNil("object", object);
     return object;
 end
@@ -620,11 +621,11 @@ function server.getFireData(object_id)
     return fire.is_lit;
 end
 function server.getOceanTransform(matrix, min_search_range, max_search_range)
-    --TODO
+    -- TODO
     error("Matrix not implemented yet.");
 end
 function server.isInTransformArea(matrix_object, matrix_zone, zone_x, zone_y, zone_z)
-    --TODO
+    -- TODO
     error("Matrix not implemented yet.");
 end
 
@@ -787,7 +788,7 @@ function server.event_playerJoin(steamid, peerId, name, isAdmin, isAuthed)
     peer.name = name;
     peer.admin = isAdmin;
     peer.auth = isAuthed;
-    server.notify(-1, "[Server]", name .. " joined the game", 5);
+    server.notify(-1, "[Server]", peer.name .. " joined the game", 5);
     if onPlayerJoin then
         onPlayerJoin(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
     end
@@ -824,11 +825,7 @@ end
 function server.event_playerTeleportVehicle(peer_id, vehicle_id, x, y, z)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
-    vehicle.pos[0] = {
-        [0] = {
-            [0] = {x, y, z}
-        }
-    };
+    vehicle.pos = {x, y, z};
     if onVehicleTeleport then
         onVehicleTeleport(vehicle_id, peer_id, x, y, z);
     end
