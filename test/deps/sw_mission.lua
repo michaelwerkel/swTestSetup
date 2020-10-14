@@ -440,10 +440,15 @@ function server.spawnThisPlaylistMissionLocation(name)
     local locationIndex = server.getLocationIndexByName(currentPlaylistIndex, name);
     assureNotNil("locationIndex", locationIndex);
     server.playlists[currentPlaylistIndex].locations[locationIndex].spawned = true;
-    printf("Location %d of playlist $d spawned.", locationIndex, currentPlaylistIndex);
+    printf("Location %d of playlist %d spawned.", locationIndex, currentPlaylistIndex);
 end
 function server.spawnMissionLocation(matrix, playlist_index, location_index)
+    assureNotNil("matrix", matrix);
     assureParameterInBounds("playlist_index", playlist_index, 1);
+    assureParameterInBounds("location_index", location_index, 1);
+    if matrix[1] == 0 and matrix[2] == 0 and matrix[3] == 0 then
+        matrix = modMatrix.random(matrix);
+    end
     server.playlists[playlist_index].locations[location_index].pos = matrix;
     server.playlists[playlist_index].locations[location_index].spawned = true;
     -- TODO: Return random matrix if matrix is 0,0,0
