@@ -792,6 +792,7 @@ function server.event_playerJoin(steamid, peerId, name, isAdmin, isAuthed)
     peer.name = name;
     peer.admin = isAdmin;
     peer.auth = isAuthed;
+    peer.pos = {getRandomId(), getRandomId(), getRandomId()};
     server.notify(-1, "[Server]", peer.name .. " joined the game", 5);
     if onPlayerJoin then
         onPlayerJoin(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
