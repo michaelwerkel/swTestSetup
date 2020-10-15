@@ -4,7 +4,12 @@
         "onDestroy",
         "onPlayerDie",
         "onVehicleSpawn",
-        "onVehicleTeleport"
+        "onVehicleTeleport",
+        "httpReply",
+        "onCustomCommand",
+        "onChatMessage",
+        "onPlayerJoin",
+        "onPlayerLeave"
     ],
     "Lua.runtime.version": "Lua 5.1"
 }
