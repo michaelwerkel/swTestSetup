@@ -34,7 +34,7 @@ jobs:
       
       # Install Lua
       - name: Install Lua
-        run: apt install lua
+        run: sudo apt install lua
       
       # Run vehicle unit tests
       #- name: Vehicle Unit Tests
