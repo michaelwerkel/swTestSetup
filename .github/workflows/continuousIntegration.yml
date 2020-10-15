@@ -42,4 +42,4 @@ jobs:
       
       # Run Mission Unit Tests
       - name: Mission Unit Tests
-        run: lua test_sw_mission.lua
+        run: lua test/test_sw_mission.lua
