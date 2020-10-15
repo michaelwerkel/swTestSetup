@@ -6,4 +6,4 @@ Extensions:
 
 Applications required:
 
-- Lua, latest
+- Lua, at least 5.1
