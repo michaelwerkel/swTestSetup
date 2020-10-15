@@ -549,7 +549,7 @@ function server.setCharacterItem(object_id, slot, EQUIPMENT_ID, is_active)
     if is_active then
         character.activeSlot = slot;
     end
-    printf("Character '%d' has item '%d' on slot %d and it's " .. (is_active and "active" or "not active"), object_id, slot, EQUIPMENT_ID);
+    printf("Character '%d' has item '%d' on slot %d and it's " .. (is_active and "active" or "not active"), object_id, EQUIPMENT_ID, slot);
 end
 function server.getTutorial()
     return server.playlists.tutorial and server.playlists.tutorial or false;
