@@ -554,6 +554,9 @@ end
 function server.getTutorial()
     return server.playlists.tutorial and server.playlists.tutorial or false;
 end
+function server.setTutorial()
+    server.playlists.tutorial = true;
+end
 function server.getZones(...)
     local tags = {...};
     local resultTags = {};
@@ -745,6 +748,10 @@ function matrix.distance(matrix1, matrix2)
 end
 
 -- Simulation
+
+-- Excluded onTick, onPlayerSit, onPlayerRespawn, onToggleMap
+-- onVehicleTeleport, onVehicleDespawn, onSpawnMissionObject,
+-- onFireExtinguished
 
 function server.event_worldCreate(creatingWorld)
     if onCreate then
