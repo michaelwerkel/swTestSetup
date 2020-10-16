@@ -113,9 +113,18 @@ function destroyArrayElementById(arrRoot, id)
 end
 
 --UI
-function server.announce(name, message)
-    printf("Announcing '%s' with '%s'", name, message);
+function server.announce(name, message, peer_id)
+    peer_id = peer_id and peer_id or -1
+    if peer_id == -1 then
+        printf("Announcing '%s' to all peers with '%s'", name, message);
+    else
+        local peer = getArrayElementById(server.peers, peer_id);
+        assureNotNil("peer", peer);
+        printf("Announcing '%s' to peer %d with '%s'", name, peer_id, message);
+    end
 end
+--[[
+-- Removed on v1.0.19
 function server.whisper(peer_id, message)
     assureParameterInBounds("peer_id", peer_id, -1);
     if peer_id == -1 then
@@ -126,6 +135,7 @@ function server.whisper(peer_id, message)
         printf("Whispering peer %d with '%s'", peer_id, message);
     end
 end
+]]
 function server.notify(peer_id, title, message, NOTIFICATION_TYPE)
     assureParameterInBounds("peer_id", peer_id, -1);
     assureParameterInBounds("NOTIFICATION_TYPE", NOTIFICATION_TYPE, 0, 9);
@@ -554,6 +564,9 @@ end
 function server.getTutorial()
     return server.playlists.tutorial and server.playlists.tutorial or false;
 end
+function server.setTutorial()
+    server.playlists.tutorial = true;
+end
 function server.getZones(...)
     local tags = {...};
     local resultTags = {};
@@ -745,6 +758,10 @@ function matrix.distance(matrix1, matrix2)
 end
 
 -- Simulation
+
+-- Excluded onTick, onPlayerSit, onPlayerRespawn, onToggleMap
+-- onVehicleTeleport, onVehicleDespawn, onSpawnMissionObject,
+-- onFireExtinguished
 
 function server.event_worldCreate(creatingWorld)
     if onCreate then

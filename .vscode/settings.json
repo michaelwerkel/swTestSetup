@@ -9,7 +9,8 @@
         "onCustomCommand",
         "onChatMessage",
         "onPlayerJoin",
-        "onPlayerLeave"
+        "onPlayerLeave",
+        "onFireExtinguished"
     ],
     "Lua.runtime.version": "Lua 5.1"
 }
