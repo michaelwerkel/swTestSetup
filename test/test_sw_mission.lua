@@ -16,6 +16,7 @@ end
 function TestSW:testAnnounce()
     server.announce("Playerjoin", "Player myPlayerName joined.");
 end
+--[[
 function TestSW:testWhisper()
     --Arrange
     local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", false, false);
@@ -23,6 +24,7 @@ function TestSW:testWhisper()
     --Act
     server.whisper(peerId, "Hi");
 end
+]]
 function TestSW:testNotify()
     --Arrange
     local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", false, false);
