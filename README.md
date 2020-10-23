@@ -1,4 +1,4 @@
-# Extensions:
+# VSCode Extensions:
 
 - formulahendry's Code Runner (Windows, Linux)
 - sumneko's Lua (Windows, Linux)
@@ -13,6 +13,16 @@
 1. [Download](http://luabinaries.sourceforge.net/#installation) the minimum required version, extract the archive and rename the lua*.exe to lua.exe.
 2. Copy the folder into a persistent folder (like Program Files) and add this folder to the PATH environment variable.
 3. Restart VSCode
+
+# Framework interaction
+
+## Fire events
+
+The `testsuite.event` namespace contains all events which are being called by the stormworks server.
+
+## Arrange environment variables
+
+To prepare the framework for the test, you can set values like players position with the `testsuite.test` namespace.
 
 # .gitignore
 
