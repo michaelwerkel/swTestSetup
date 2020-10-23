@@ -111,6 +111,17 @@ function destroyArrayElementById(arrRoot, id)
     end
     return false;
 end
+function string.split(str, splitChar)
+    local stringSplit = {};
+    local charIndex = string.find(str, splitChar);
+    while charIndex do
+        stringSplit[#stringSplit+1] = string.sub(str, 1, charIndex - 1);
+        str = string.sub(str, charIndex + 1);
+        charIndex = string.find(str, splitChar);
+    end
+    stringSplit[#stringSplit+1] = str;
+    return stringSplit;
+end
 
 --UI
 function server.announce(name, message, peer_id)
@@ -637,10 +648,12 @@ function server.getFireData(object_id)
     assureNotNil("fire", fire);
     return fire.is_lit;
 end
+--[[ returns the world position of a random ocean tile within the selected search range ]]
 function server.getOceanTransform(matrix, min_search_range, max_search_range)
     -- TODO
     error("Matrix not implemented yet.");
 end
+--[[ returns whether the object transform is within a custom zone of the selected size ]]
 function server.isInTransformArea(matrix_object, matrix_zone, zone_x, zone_y, zone_z)
     -- TODO
     error("Matrix not implemented yet.");
@@ -773,13 +786,10 @@ function server.event_worldExit()
         onDestroy()
     end
 end
-function server.event_playerCommand(player_peer_id, chat_command)
+function server.event_playerCommand(player_peer_id, command)
     local peer = getArrayElementById(server.peers, player_peer_id);
     assureNotNil("peer", peer);
-    local commandSplit = {};
-    string.gsub(chat_command, " ", function(c)
-        table.insert(commandSplit, c);
-    end);
+    local commandSplit = string.split(command, " ");
     if onCustomCommand then
         onCustomCommand("", player_peer_id, peer.admin, peer.auth, table.unpack(commandSplit));
     end
