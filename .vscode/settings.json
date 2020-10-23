@@ -10,7 +10,13 @@
         "onChatMessage",
         "onPlayerJoin",
         "onPlayerLeave",
-        "onFireExtinguished"
+        "onFireExtinguished",
+        "onDraw",
+        "onPlayerSit",
+        "onPlayerRespawn",
+        "onToggleMap",
+        "onVehicleDespawn",
+        "onSpawnMissionObject"
     ],
     "Lua.runtime.version": "Lua 5.1"
 }

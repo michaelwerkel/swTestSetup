@@ -5,6 +5,10 @@ screen = {};
 map = {};
 async = {};
 
+testsuite = {
+    event = {}
+}
+
 --[[ http://www.cplusplus.com/reference/cstdio/printf/ ]]
 function printf(s,...)
     return print(s:format(...));
@@ -26,6 +30,25 @@ function assureColorInBounds(r, g, b, a)
     assureParameterInBounds("g", g, 0, 255);
     assureParameterInBounds("b", b, 0, 255);
     assureParameterInBounds("a", a, 0, 1);
+end
+function testsuite.event.onDraw()
+    if onDraw then
+        onDraw()
+    end
+end
+function testsuite.event.onTick()
+    if onTick then
+        --[[
+            simulate screen functions not available
+            in onTick
+        ]]
+        local lateboundScreen = screen;
+        screen = {};
+
+        onTick();
+
+        screen = lateboundScreen;
+    end
 end
 
 function input.test_setBool(index, value)
