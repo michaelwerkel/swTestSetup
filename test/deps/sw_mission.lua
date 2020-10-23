@@ -88,7 +88,7 @@ function server.notify(peer_id, title, message, NOTIFICATION_TYPE)
     else
         local peer = getArrayElementById(server.peers, peer_id);
         assureNotNil("peer", peer);
-        printf("Notifying peer %d with '%s', '%s', %d", peer_id, title, message, NOTIFICATION_TYPE)
+        printf("Notifying peer %d ('" .. peer.name .. "') with '%s', '%s', %d", peer_id, title, message, NOTIFICATION_TYPE)
     end
 end
 function server.getMapID()
@@ -233,7 +233,7 @@ function server.killPlayer(peer_id)
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     peer.hp = 0;
-    printf("Killed peer id %d", peer_id);
+    printf("Killed peer id %d ('" .. (peer.name or "") .. "')", peer_id);
 end
 function server.setSeated(peer_id, vehicle_id, seat_name)
     assureParameterInBounds("peer_id", peer_id, 1);
@@ -243,7 +243,7 @@ function server.setSeated(peer_id, vehicle_id, seat_name)
     assureNotNil("vehicle", vehicle);
     getOrSetArr(vehicle, "seats");
     vehicle.seats[seat_name] = peer_id;
-    printf("Seated peer id %d in %d on %s", peer_id, vehicle_id, seat_name)
+    printf("Seated peer id %d ('" .. (peer.name or "") .. "') in %d on %s", peer_id, vehicle_id, seat_name)
 end
 function testsuite.test.setPlayerLookDirection(peer_id, lookDirection)
     getOrSetArr(server.peers, peer_id);
@@ -279,6 +279,7 @@ function server.spawnVehicleSavefile(matrix, save_name)
     server.vehicles[vehicleIndex].id = vehicleId;
     server.vehicles[vehicleIndex].pos = matrix;
     server.vehicles[vehicleIndex].save_name = save_name;
+    server.vehicles[vehicleIndex].name = save_name;
     return vehicleId;
 end
 function server.despawnVehicle(vehicle_id, is_instant)
@@ -321,7 +322,7 @@ function server.pressVehicleButton(vehicle_id, button_name)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
     -- TODO: Make testable
-    printf("Button '%s' of vehicle '%d' has been pressed.", button_name, vehicle_id);
+    printf("Button '%s' of vehicle '%d' ('" .. (vehicle.name or "") .. "') has been pressed.", button_name, vehicle_id);
 end
 function testsuite.test.setVehicleFireCount(vehicle_id, count)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);

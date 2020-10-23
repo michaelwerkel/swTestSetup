@@ -226,24 +226,18 @@ function TestSW:testTeleportPlayer()
 end
 function TestSW:testKillPlayer()
     -- Arrange
-    server.peers[1] = {
-        ["id"] = 1
-    };
+    local user1 = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
 
     -- Act
-    server.killPlayer(1);
+    server.killPlayer(user1);
 end
 function TestSW:testSetSeated()
     -- Arrange
-    server.peers[1] = {
-        ["id"] = 1
-    };
-    server.vehicles[1] = {
-        ["id"] = 23
-    };
+    local user1 = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
+    local vehicle1 = testsuite.event.vehicleSpawn(user1, "Police", 0, 0, 0);
 
     -- Act
-    server.setSeated(1, 23, "Pilot");
+    server.setSeated(user1, vehicle1, "Pilot");
 end
 function TestSW:testGetPlayerLookDirection()
     -- Arrange
