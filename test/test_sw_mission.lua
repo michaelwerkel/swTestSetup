@@ -274,7 +274,7 @@ function TestSW:testDespawnVehicle()
     local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
 
     -- Act
-    server.despawnVehicle(vehicleId, false);
+    server.despawnVehicle(vehicleId, true);
 
     -- Assert
     lu.assertIsNil(server.vehicles[1]);
@@ -599,7 +599,7 @@ function TestSW:testDespawnMissionObject()
     local objectId = server.spawnMissionObject({0, 0, 0}, 1, 1, 1);
 
     -- Act
-    server.despawnMissionObject(objectId);
+    server.despawnMissionObject(objectId, true);
 
     -- Assert
     lu.assertIsFalse(server.objects[1].spawned);
@@ -720,6 +720,75 @@ function TestSW:test_event_playerTeleportVehicle()
 
     -- Assert
     lu.assertItemsEquals(server.vehicles[1].pos, {4, 5, 6});
+end
+
+function TestSW:test_banPlayer()
+    -- Arrange
+    local peerId = testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
+
+    -- Act
+    server.banPlayer(peerId);
+
+    -- Assert
+    local peer = getArrayElementById(server.peers, peerId);
+    lu.assertIsTrue(peer.isBanned);
+end
+function TestSW:test_kickPlayer()
+    -- Arrange
+    local peerId = testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
+
+    -- Act
+    server.kickPlayer(peerId);
+
+    -- Assert
+    local peer = getArrayElementById(server.peers, peerId);
+    lu.assertIsTrue(peer.gotKicked);
+end
+function TestSW:test_addAdmin()
+    -- Arrange
+    local peerId = testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
+
+    -- Act
+    server.addAdmin(peerId);
+
+    -- Assert
+    local peer = getArrayElementById(server.peers, peerId);
+    lu.assertIsTrue(peer.admin);
+end
+function TestSW:test_removeAdmin()
+    -- Arrange
+    local peerId = testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
+    server.addAdmin(peerId);
+
+    -- Act
+    server.removeAdmin(peerId);
+
+    -- Assert
+    local peer = getArrayElementById(server.peers, peerId);
+    lu.assertIsFalse(peer.admin);
+end
+function TestSW:test_addAuth()
+    -- Arrange
+    local peerId = testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
+
+    -- Act
+    server.addAuth(peerId);
+
+    -- Assert
+    local peer = getArrayElementById(server.peers, peerId);
+    lu.assertIsTrue(peer.auth);
+end
+function TestSW:test_removeAuth()
+    -- Arrange
+    local peerId = testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
+    server.addAuth(peerId);
+
+    -- Act
+    server.removeAuth(peerId);
+
+    -- Assert
+    local peer = getArrayElementById(server.peers, peerId);
+    lu.assertIsFalse(peer.auth);
 end
 
 local runner = lu.LuaUnit.new();

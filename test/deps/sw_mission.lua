@@ -64,7 +64,7 @@ function server.announce(name, message, peer_id)
     else
         local peer = getArrayElementById(server.peers, peer_id);
         assureNotNil("peer", peer);
-        printf("Announcing '%s' to peer %d ('" .. peer.name .. "') with '%s'", name, peer_id, message);
+        printf("Announcing '%s' to peer %d ('%s') with '%s'", name, peer_id, (peer.name or ""), message);
     end
 end
 --[[
@@ -88,7 +88,7 @@ function server.notify(peer_id, title, message, NOTIFICATION_TYPE)
     else
         local peer = getArrayElementById(server.peers, peer_id);
         assureNotNil("peer", peer);
-        printf("Notifying peer %d ('" .. peer.name .. "') with '%s', '%s', %d", peer_id, title, message, NOTIFICATION_TYPE)
+        printf("Notifying peer %d ('%s') with '%s', '%s', %d", peer_id, (peer.name or ""), title, message, NOTIFICATION_TYPE)
     end
 end
 function server.getMapID()
@@ -233,7 +233,7 @@ function server.killPlayer(peer_id)
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     peer.hp = 0;
-    printf("Killed peer id %d ('" .. (peer.name or "") .. "')", peer_id);
+    printf("Killed peer id %d ('%s')", peer_id, (peer.name or ""));
 end
 function server.setSeated(peer_id, vehicle_id, seat_name)
     assureParameterInBounds("peer_id", peer_id, 1);
@@ -243,7 +243,7 @@ function server.setSeated(peer_id, vehicle_id, seat_name)
     assureNotNil("vehicle", vehicle);
     getOrSetArr(vehicle, "seats");
     vehicle.seats[seat_name] = peer_id;
-    printf("Seated peer id %d ('" .. (peer.name or "") .. "') in %d on %s", peer_id, vehicle_id, seat_name)
+    printf("Seated peer id %d ('%s') in %d ('%s') on %s", peer_id, (peer.name or ""), vehicle_id, (vehicle.name or ""), seat_name)
 end
 function testsuite.test.setPlayerLookDirection(peer_id, lookDirection)
     getOrSetArr(server.peers, peer_id);
@@ -322,7 +322,7 @@ function server.pressVehicleButton(vehicle_id, button_name)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
     -- TODO: Make testable
-    printf("Button '%s' of vehicle '%d' ('" .. (vehicle.name or "") .. "') has been pressed.", button_name, vehicle_id);
+    printf("Button '%s' of vehicle '%d' ('%s') has been pressed.", button_name, vehicle_id, (vehicle.name or ""));
 end
 function testsuite.test.setVehicleFireCount(vehicle_id, count)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
@@ -504,7 +504,7 @@ function server.setCharacterItem(object_id, slot, EQUIPMENT_ID, is_active)
     if is_active then
         character.activeSlot = slot;
     end
-    printf("Character '%d' has item '%d' on slot %d and it's " .. (is_active and "active" or "not active"), object_id, EQUIPMENT_ID, slot);
+    printf("Character '%d' has item '%d' on slot %d and it's %s", object_id, EQUIPMENT_ID, slot, (is_active and "active" or "not active"));
 end
 function server.getTutorial()
     return server.playlists.tutorial and server.playlists.tutorial or false;
@@ -548,7 +548,7 @@ function server.despawnMissionObject(object_id, is_instant)
     local object = getArrayElementById(server.objects, object_id);
     assureNotNil("object", object);
     object.spawned = false;
-    printf("Despawned object with id %d" .. (is_instant and "instantly" or ""), object_id);
+    printf("Despawned object with id %d %s", object_id, (is_instant and "instantly" or ""));
 end
 function server.getPlaylistCount()
     return #server.playlists;
@@ -646,36 +646,42 @@ function server.banPlayer(peer_id)
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     peer.isBanned = true;
+    printf("Banned id %d ('%s')", peer_id, (peer.name or ""));
 end
 function server.kickPlayer(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     peer.gotKicked = true;
+    printf("Kicked id %d ('%s')", peer_id, (peer.name or ""));
 end
 function server.addAdmin(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     peer.admin = true;
+    printf("Added id %d ('%s') to adminlist", peer_id, (peer.name or ""));
 end
 function server.removeAdmin(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     peer.admin = false;
+    printf("Removed id %d ('%s') from adminlist", peer_id, (peer.name or ""));
 end
 function server.addAuth(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     peer.auth = true;
+    printf("Added id %d ('%s') to authlist", peer_id, (peer.name or ""));
 end
 function server.removeAuth(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     peer.auth = false;
+    printf("Removed id %d ('%s') from authlist", peer_id, (peer.name or ""));
 end
 
 function matrix.multiply(matrix1, matrix2)
