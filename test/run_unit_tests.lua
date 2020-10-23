@@ -1,16 +1,29 @@
+-- Relative of the working directory, where lua is executed
 local lu = require("test.deps.luaunit");
+require("test.deps.utility");
 
-require("test.deps.sw_vehicle");
+-- Uncomment to test vehicle scripts
+--require("test.deps.sw_vehicle");
+-- Uncomment to test mission scripts
+require("test.deps.sw_mission");
+
+-- Path to the source script
 require("src.example_script")
 
-function test_exampleScript()
+-- Needs to be prefixed with "Test"
+TestMyFeatures = {};
 
-    async.test_setHttpGetCallback(function(port, request)
-        return "Hallo, Welt!";
-    end);
+function TestMyFeatures:testPlayerCommand()
 
-    onTick(123);
+	-- Arrange
+	local peerId = testsuite.event.playerJoin(getRandomId(), getRandomId(), "MyPlayerName", true, true);
+	
+	-- Act
+	testsuite.event.playerCommand(peerId, "?hello");
+
+	-- Assert
+	lu.assertIsTrue(hello);
 
 end
 
-os.exit(lu.LuaUnit.run());
+lu.LuaUnit.run();

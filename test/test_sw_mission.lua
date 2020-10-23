@@ -1,6 +1,5 @@
-local lu = require("test/deps/luaunit");
-
-require("test/deps/sw_mission");
+local lu = require("test.deps.luaunit");
+require("test.deps.sw_mission");
 
 TestSW = {};
 

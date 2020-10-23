@@ -1,3 +1,5 @@
+require("./utility.lua");
+
 input = {};
 output = {};
 property = {};
@@ -9,28 +11,6 @@ testsuite = {
     event = {}
 }
 
---[[ http://www.cplusplus.com/reference/cstdio/printf/ ]]
-function printf(s,...)
-    return print(s:format(...));
-end
-
-function assureNotNil(name, value)
-    if not value then
-        error(name .. " doesn't exist.");
-    end
-end
-function assureParameterInBounds(name, value, min, max)
-    assureNotNil("min", min);
-    if value < min or (max and (value > max) or false) then
-        error(name .. " out of bounds.");
-    end
-end
-function assureColorInBounds(r, g, b, a)
-    assureParameterInBounds("r", r, 0, 255);
-    assureParameterInBounds("g", g, 0, 255);
-    assureParameterInBounds("b", b, 0, 255);
-    assureParameterInBounds("a", a, 0, 1);
-end
 function testsuite.event.onDraw()
     if onDraw then
         onDraw()
