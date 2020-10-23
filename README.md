@@ -6,7 +6,13 @@
 
 # Applications required:
 
-- Lua, at least 5.3 (Only required when run with Code Runner)
+- Lua, at least 5.3 (Only required when ran with Code Runner)
+
+## Lua installation
+
+1. [Download](http://luabinaries.sourceforge.net/#installation) the minimum required version, extract the archive and rename the lua*.exe to lua.exe.
+2. Copy the folder into a persistent folder (like Program Files) and add this folder to the PATH environment variable.
+3. Restart VSCode
 
 # .gitignore
 
