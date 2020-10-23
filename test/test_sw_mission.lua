@@ -721,6 +721,17 @@ function TestSW:test_event_playerTeleportVehicle()
     -- Assert
     lu.assertItemsEquals(server.vehicles[1].pos, {4, 5, 6});
 end
+function TestSW:test_event_playerCommand()
+    -- Arrange
+    local peerId = testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
+    function onCustomCommand(message, user_id, is_admin, is_auth, command, ...)
+        -- Assert
+        lu.assertEquals(command, "?myCommand");
+    end
+
+    -- Act
+    testsuite.event.playerCommand(peerId, "?myCommand");
+end
 
 function TestSW:test_banPlayer()
     -- Arrange

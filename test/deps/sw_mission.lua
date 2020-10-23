@@ -284,7 +284,10 @@ function server.spawnVehicleSavefile(matrix, save_name)
 end
 function server.despawnVehicle(vehicle_id, is_instant)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
+    local vehicle = getArrayElementById(server.vehicles, vehicle_id);
+    assureNotNil("vehicleId", vehicle);
     destroyArrayElementById(server.vehicles, vehicle_id);
+    printf("Despawned vehicle %d ('%s') %s", vehicle_id, (vehicle.name or ""), (is_instant and "instantly" or ""))
 end
 function testsuite.test.setVehiclePos(vehicle_id, matrix)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
@@ -769,6 +772,7 @@ end
 function testsuite.event.playerCommand(player_peer_id, command)
     local peer = getArrayElementById(server.peers, player_peer_id);
     assureNotNil("peer", peer);
+    printf("Peer %d ('%s') ran command '%s'", player_peer_id, (peer.name or ""), command);
     local commandSplit = string.split(command, " ");
     if onCustomCommand then
         onCustomCommand("", player_peer_id, peer.admin, peer.auth, table.unpack(commandSplit));
@@ -823,6 +827,12 @@ function testsuite.event.playerDie(peer_id)
     end
 end
 function testsuite.event.vehicleSpawn(peer_id, vehicleName, x, y, z)
+    local peer = getArrayElementById(server.peers, peer_id);
+    assureNotNil("peer", peer);
+    if not peer.auth then
+        printf("%d ('%s') Workbench: You must be authorized to use workbench.", peer_id, (peer.name or ""));
+        return;
+    end
     local vehicleId = getRandomId();
     local vehicleIndex = #server.vehicles + 1;
     local vehicle = getOrSetArr(server.vehicles, vehicleIndex);
