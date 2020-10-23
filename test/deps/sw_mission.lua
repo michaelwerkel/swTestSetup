@@ -64,7 +64,7 @@ function server.announce(name, message, peer_id)
     else
         local peer = getArrayElementById(server.peers, peer_id);
         assureNotNil("peer", peer);
-        printf("Announcing '%s' to peer %d with '%s'", name, peer_id, message);
+        printf("Announcing '%s' to peer %d ('" .. peer.name .. "') with '%s'", name, peer_id, message);
     end
 end
 --[[

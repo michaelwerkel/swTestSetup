@@ -18,7 +18,7 @@ function assureNotNil(name, value)
 end
 function assureParameterInBounds(name, value, min, max)
     assureNotNil("min", min);
-    if value < min or (max and (value > max) or false) then
+    if math.tointeger(value) < math.tointeger(min) or (max and (math.tointeger(value) > math.tointeger(max)) or false) then
         error(name .. " out of bounds.");
     end
 end
@@ -43,7 +43,7 @@ function getRandomId()
 end
 function getArrayElementBy(arrRoot, index, id)
     for _, element in pairs(arrRoot) do
-        if element[index] == id then
+        if element[index] == math.tointeger(id) then
             return element;
         end
     end
@@ -53,7 +53,7 @@ function getArrayElementById(arrRoot, id)
 end
 function destroyArrayElementById(arrRoot, id)
     for elementIndex, element in pairs(arrRoot) do
-        if element.id == id then
+        if element.id == math.tointeger(id) then
             arrRoot[elementIndex] = nil;
             return true;
         end
