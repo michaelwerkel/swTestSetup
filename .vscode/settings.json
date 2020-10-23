@@ -9,7 +9,14 @@
         "onCustomCommand",
         "onChatMessage",
         "onPlayerJoin",
-        "onPlayerLeave"
+        "onPlayerLeave",
+        "onFireExtinguished",
+        "onDraw",
+        "onPlayerSit",
+        "onPlayerRespawn",
+        "onToggleMap",
+        "onVehicleDespawn",
+        "onSpawnMissionObject"
     ],
     "Lua.runtime.version": "Lua 5.3"
 }

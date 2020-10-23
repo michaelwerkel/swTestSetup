@@ -50,6 +50,11 @@ server.gameSettings.GAME_SETTINGS = {
 server.tiles = {};
 matrix = {};
 
+testsuite = {
+    event = {},
+    test = {}
+}
+
 -- [[ http://lua-users.org/wiki/SleepFunction ]]
 local clock = os.clock
 function sleep(n)  -- seconds
@@ -111,11 +116,31 @@ function destroyArrayElementById(arrRoot, id)
     end
     return false;
 end
+function string.split(str, splitChar)
+    local stringSplit = {};
+    local charIndex = string.find(str, splitChar);
+    while charIndex do
+        stringSplit[#stringSplit+1] = string.sub(str, 1, charIndex - 1);
+        str = string.sub(str, charIndex + 1);
+        charIndex = string.find(str, splitChar);
+    end
+    stringSplit[#stringSplit+1] = str;
+    return stringSplit;
+end
 
 --UI
-function server.announce(name, message)
-    printf("Announcing '%s' with '%s'", name, message);
+function server.announce(name, message, peer_id)
+    peer_id = peer_id and peer_id or -1
+    if peer_id == -1 then
+        printf("Announcing '%s' to all peers with '%s'", name, message);
+    else
+        local peer = getArrayElementById(server.peers, peer_id);
+        assureNotNil("peer", peer);
+        printf("Announcing '%s' to peer %d with '%s'", name, peer_id, message);
+    end
 end
+--[[
+-- Removed on v1.0.19
 function server.whisper(peer_id, message)
     assureParameterInBounds("peer_id", peer_id, -1);
     if peer_id == -1 then
@@ -126,6 +151,7 @@ function server.whisper(peer_id, message)
         printf("Whispering peer %d with '%s'", peer_id, message);
     end
 end
+]]
 function server.notify(peer_id, title, message, NOTIFICATION_TYPE)
     assureParameterInBounds("peer_id", peer_id, -1);
     assureParameterInBounds("NOTIFICATION_TYPE", NOTIFICATION_TYPE, 0, 9);
@@ -244,7 +270,7 @@ function server.createPopup(peer_id, ui_id)
 end
 
 --Player
-function server.test_setPlayerName(peer_id, name)
+function testsuite.test.setPlayerName(peer_id, name)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
@@ -258,7 +284,7 @@ end
 function server.getPlayers()
     return server.peers;
 end
-function server.test_setPlayerPos(peer_id, matrix)
+function testsuite.test.setPlayerPos(peer_id, matrix)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
     peer.pos = matrix;
@@ -291,7 +317,7 @@ function server.setSeated(peer_id, vehicle_id, seat_name)
     vehicle.seats[seat_name] = peer_id;
     printf("Seated peer id %d in %d on %s", peer_id, vehicle_id, seat_name)
 end
-function server.test_setPlayerLookDirection(peer_id, lookDirection)
+function testsuite.test.setPlayerLookDirection(peer_id, lookDirection)
     getOrSetArr(server.peers, peer_id);
     local peer = getArrayElementById(server.peers, peer_id);
     peer.lookDirection = lookDirection;
@@ -331,7 +357,7 @@ function server.despawnVehicle(vehicle_id, is_instant)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     destroyArrayElementById(server.vehicles, vehicle_id);
 end
-function server.test_setVehiclePos(vehicle_id, matrix)
+function testsuite.test.setVehiclePos(vehicle_id, matrix)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
@@ -369,7 +395,7 @@ function server.pressVehicleButton(vehicle_id, button_name)
     -- TODO: Make testable
     printf("Button '%s' of vehicle '%d' has been pressed.", button_name, vehicle_id);
 end
-function server.test_setVehicleFireCount(vehicle_id, count)
+function testsuite.test.setVehicleFireCount(vehicle_id, count)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
@@ -387,7 +413,7 @@ function server.setVehicleTooltip(vehicle_id, text)
     assureNotNil("vehicle", vehicle);
     vehicle.toolTip = text;
 end
-function server.test_setVehicleSimulating(vehicleId, simulating)
+function testsuite.test.setVehicleSimulating(vehicleId, simulating)
     assureParameterInBounds("vehicleId", vehicleId, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicleId);
     assureNotNil("vehicle", vehicle);
@@ -420,7 +446,7 @@ function server.getPlaylistIndexByName(name)
         end
     end
 end
-function server.test_setPlaylistIndexCurrent(currentPlaylistIndex)
+function testsuite.test.setPlaylistIndexCurrent(currentPlaylistIndex)
     server.playlists.currentPlaylistIndex = currentPlaylistIndex;
 end
 function server.getPlaylistIndexCurrent()
@@ -554,6 +580,9 @@ end
 function server.getTutorial()
     return server.playlists.tutorial and server.playlists.tutorial or false;
 end
+function server.setTutorial()
+    server.playlists.tutorial = true;
+end
 function server.getZones(...)
     local tags = {...};
     local resultTags = {};
@@ -624,10 +653,12 @@ function server.getFireData(object_id)
     assureNotNil("fire", fire);
     return fire.is_lit;
 end
+--[[ returns the world position of a random ocean tile within the selected search range ]]
 function server.getOceanTransform(matrix, min_search_range, max_search_range)
     -- TODO
     error("Matrix not implemented yet.");
 end
+--[[ returns whether the object transform is within a custom zone of the selected size ]]
 function server.isInTransformArea(matrix_object, matrix_zone, zone_x, zone_y, zone_z)
     -- TODO
     error("Matrix not implemented yet.");
@@ -651,7 +682,7 @@ end
 function server.getResearchPoints()
     return server.gameSettings.research;
 end
-function server.test_setDateValue(value)
+function testsuite.test.setDateValue(value)
     server.gameSettings.date = value;
 end
 function server.getDateValue()
@@ -660,7 +691,7 @@ end
 function server.getTimeMillisec()
     return os.time();
 end
-function server.test_setTilePurchased(matrix, purchased)
+function testsuite.test.setTilePurchased(matrix, purchased)
     local tileIndex = #server.tiles + 1;
     getOrSetArr(server.tiles, tileIndex);
     server.tiles[tileIndex].purchased = purchased;
@@ -670,7 +701,7 @@ function server.getTilePurchased(matrix)
     error("Matrix not implemented.");
 end
 --[[Set callback to httpReply to make the script answer.]]
-function server.test_setHttpGetCallback(callback)
+function testsuite.test.setHttpGetCallback(callback)
     server.httpGetCallback = callback;
 end
 function server.httpGet(port, request_body)
@@ -746,35 +777,76 @@ end
 
 -- Simulation
 
-function server.event_worldCreate(creatingWorld)
+-- Excluded onTick, onPlayerSit, onPlayerRespawn, onToggleMap
+-- onVehicleTeleport, onVehicleDespawn, onSpawnMissionObject,
+-- onFireExtinguished
+
+function testsuite.event.onFireExtinguished(fire_x,fire_y,fire_z)
+    if onFireExtinguished then
+        onFireExtinguished(fire_x,fire_y,fire_z);
+    end
+end
+function testsuite.event.onSpawnMissionObject(object_id, name, TYPE_STRING, playlist_index)
+    if onSpawnMissionObject then
+        onSpawnMissionObject(object_id, name, TYPE_STRING, playlist_index);
+    end
+end
+function testsuite.event.onVehicleDespawn(vehicle_id, peer_id)
+    if onVehicleDespawn then
+        onVehicleDespawn(vehicle_id, peer_id);
+    end
+end
+function testsuite.event.onVehicleTeleport(vehicle_id, peer_id, x, y, z)
+    if onVehicleTeleport then
+        onVehicleTeleport(vehicle_id, peer_id, x, y, z);
+    end
+end
+function testsuite.event.onToggleMap(peer_id, is_open)
+    if onToggleMap then
+        onToggleMap(peer_id, is_open)
+    end
+end
+function testsuite.event.onPlayerRespawn(peer_id)
+    if onPlayerRespawn then
+        onPlayerRespawn(peer_id)
+    end
+end
+function testsuite.event.onPlayerSit(peer_id, vehicle_id, seat_name)
+    if onPlayerSit then
+        onPlayerSit(peer_id, vehicle_id, seat_name);
+    end
+end
+function testsuite.event.onTick()
+    if onTick then
+        onTick()
+    end
+end
+function testsuite.event.worldCreate(creatingWorld)
     if onCreate then
         onCreate(creatingWorld);
     end
 end
-function server.event_worldExit()
+function testsuite.event.worldExit()
     if onDestroy then
         onDestroy()
     end
 end
-function server.event_playerCommand(player_peer_id, chat_command)
+function testsuite.event.playerCommand(player_peer_id, command)
     local peer = getArrayElementById(server.peers, player_peer_id);
     assureNotNil("peer", peer);
-    local commandSplit = {};
-    string.gsub(chat_command, " ", function(c)
-        table.insert(commandSplit, c);
-    end);
+    local commandSplit = string.split(command, " ");
     if onCustomCommand then
         onCustomCommand("", player_peer_id, peer.admin, peer.auth, table.unpack(commandSplit));
     end
 end
-function server.event_chatMessage(player_peer_id, message)
+function testsuite.event.chatMessage(player_peer_id, message)
     local peer = getArrayElementById(server.peers, player_peer_id);
     assureNotNil("peer", peer);
     if onChatMessage then
         onChatMessage(peer.name, message);
     end
 end
-function server.event_playerJoin(steamid, peerId, name, isAdmin, isAuthed)
+function testsuite.event.playerJoin(steamid, peerId, name, isAdmin, isAuthed)
     if #server.peers == 0 then
         server.peers[1] = {
             id = 0,
@@ -799,7 +871,7 @@ function server.event_playerJoin(steamid, peerId, name, isAdmin, isAuthed)
     end
     return peerId;
 end
-function server.event_playerLeave(peer_id)
+function testsuite.event.playerLeave(peer_id)
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     if onPlayerLeave then
@@ -808,13 +880,13 @@ function server.event_playerLeave(peer_id)
     server.notify(-1, "[Server]", peer.name .. " left the game", 6);
     destroyArrayElementById(server.peers, peer_id);
 end
-function server.event_playerDie(peer_id)
+function testsuite.event.playerDie(peer_id)
     local peer = getArrayElementById(server.peers);
     if onPlayerDie then
         onPlayerDie(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
     end
 end
-function server.event_vehicleSpawn(peer_id, vehicleName, x, y, z)
+function testsuite.event.vehicleSpawn(peer_id, vehicleName, x, y, z)
     local vehicleId = getRandomId();
     local vehicleIndex = #server.vehicles + 1;
     local vehicle = getOrSetArr(server.vehicles, vehicleIndex);
@@ -827,7 +899,7 @@ function server.event_vehicleSpawn(peer_id, vehicleName, x, y, z)
     end
     return vehicleId;
 end
-function server.event_playerTeleportVehicle(peer_id, vehicle_id, x, y, z)
+function testsuite.event.playerTeleportVehicle(peer_id, vehicle_id, x, y, z)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
     vehicle.pos = {x, y, z};

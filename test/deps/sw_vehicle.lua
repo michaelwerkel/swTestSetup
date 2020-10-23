@@ -5,9 +5,50 @@ screen = {};
 map = {};
 async = {};
 
+testsuite = {
+    event = {}
+}
+
 --[[ http://www.cplusplus.com/reference/cstdio/printf/ ]]
 function printf(s,...)
-    return io.write(s:format(...));
+    return print(s:format(...));
+end
+
+function assureNotNil(name, value)
+    if not value then
+        error(name .. " doesn't exist.");
+    end
+end
+function assureParameterInBounds(name, value, min, max)
+    assureNotNil("min", min);
+    if value < min or (max and (value > max) or false) then
+        error(name .. " out of bounds.");
+    end
+end
+function assureColorInBounds(r, g, b, a)
+    assureParameterInBounds("r", r, 0, 255);
+    assureParameterInBounds("g", g, 0, 255);
+    assureParameterInBounds("b", b, 0, 255);
+    assureParameterInBounds("a", a, 0, 1);
+end
+function testsuite.event.onDraw()
+    if onDraw then
+        onDraw()
+    end
+end
+function testsuite.event.onTick()
+    if onTick then
+        --[[
+            simulate screen functions not available
+            in onTick
+        ]]
+        local lateboundScreen = screen;
+        screen = {};
+
+        onTick();
+
+        screen = lateboundScreen;
+    end
 end
 
 function input.test_setBool(index, value)
@@ -17,9 +58,11 @@ function input.test_setNumber(index, value)
     input[index] = value;
 end
 function input.getBool(index)
+    assureParameterInBounds("index", index, 1, 32);
     return input[index];
 end
 function input.getNumber(index)
+    assureParameterInBounds("index", index, 1, 32);
     return input[index];
 end
 
@@ -30,9 +73,11 @@ function output.test_getNumber(index)
     return output[index];
 end
 function output.setBool(index, value)
+    assureParameterInBounds("index", index, 1, 32);
     output[index] = value;
 end
 function output.setNumber(index, value)
+    assureParameterInBounds("index", index, 1, 32);
     output[index] = value;
 end
 
@@ -46,20 +91,31 @@ function property.test_setText(label, value)
     property[label] = value;
 end
 function property.getNumber(label)
-    return property[label];
+    assureNotNil("label", label);
+    local numberProperty = property[label];
+    assureNotNil("numberProperty", numberProperty);
+    return numberProperty;
 end
 function property.getBool(label)
-    return property[label];
+    assureNotNil("label", label);
+    local numberProperty = property[label];
+    assureNotNil("numberProperty", numberProperty);
+    return numberProperty;
 end
 function property.getText(label)
-    return property[label];
+    assureNotNil("label", label);
+    local numberProperty = property[label];
+    assureNotNil("numberProperty", numberProperty);
+    return numberProperty;
 end
 
 function screen.setColor(r, g, b)
+    assureColorInBounds(r, b, b, 1);
     printf("Color set to %d, %d, %d", r, g, b);
 end
 function screen.setColor(r, g, b, a)
-    printf("Color set to %d, %d, %d, %d", r, g, b, a);
+    assureColorInBounds(r, b, b, a);
+    printf("Color set to %d, %d, %d, %f", r, g, b, a);
 end
 function screen.drawClear()
     print("Screen cleared");
@@ -95,22 +151,28 @@ function screen.drawMap(x, y, zoom)
     printf("Map drawn on %d, %d with %d", x, y, zoom);
 end
 function screen.setMapColorOcean(r, g, b, a)
-    printf("Ocean map color set to %d, %d, %d, %d", r, g, b, a);
+    assureColorInBounds(r, b, b, a);
+    printf("Ocean map color set to %d, %d, %d, %f", r, g, b, a);
 end
 function screen.setMapColorShallows(r, g, b, a)
-    printf("Shallow map color set to %d, %d, %d, %d", r, g, b, a);
+    assureColorInBounds(r, b, b, a);
+    printf("Shallow map color set to %d, %d, %d, %f", r, g, b, a);
 end
 function screen.setMapColorLand(r, g, b, a)
-    printf("Land map color set to %d, %d, %d, %d", r, g, b, a);
+    assureColorInBounds(r, b, b, a);
+    printf("Land map color set to %d, %d, %d, %f", r, g, b, a);
 end
 function screen.setMapColorGrass(r, g, b, a)
-    printf("Grass map color set to %d, %d, %d, %d", r, g, b, a);
+    assureColorInBounds(r, b, b, a);
+    printf("Grass map color set to %d, %d, %d, %f", r, g, b, a);
 end
 function screen.setMapColorSand(r, g, b, a)
-    printf("Sand map color set to %d, %d, %d, %d", r, g, b, a);
+    assureColorInBounds(r, b, b, a);
+    printf("Sand map color set to %d, %d, %d, %f", r, g, b, a);
 end
 function screen.setMapColorSnow(r, g, b, a)
-    printf("Snow map color set to %d, %d, %d, %d", r, g, b, a);
+    assureColorInBounds(r, b, b, a);
+    printf("Snow map color set to %d, %d, %d, %f", r, g, b, a);
 end
 function screen.test_setWidth(width)
     screen.width = width;

@@ -16,6 +16,7 @@ end
 function TestSW:testAnnounce()
     server.announce("Playerjoin", "Player myPlayerName joined.");
 end
+--[[
 function TestSW:testWhisper()
     --Arrange
     local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", false, false);
@@ -23,9 +24,10 @@ function TestSW:testWhisper()
     --Act
     server.whisper(peerId, "Hi");
 end
+]]
 function TestSW:testNotify()
     --Arrange
-    local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", false, false);
+    local peerId = testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", false, false);
     
     --Act
     server.notify(peerId, "Welcome!", "Hello dude!", 4);
@@ -177,7 +179,7 @@ function TestSW:testGetPlayerName()
     server.peers[1] = {
         ["id"] = 1
     };
-    server.test_setPlayerName(1, "ActionedPlayer");
+    testsuite.test.setPlayerName(1, "ActionedPlayer");
 
     -- Act
     local playerName = server.getPlayerName(1);
@@ -203,7 +205,7 @@ function TestSW:testGetPlayerPos()
         ["id"] = 123
     };
 
-    server.test_setPlayerPos(123, {x = 123, y = 123, z = 123});
+    testsuite.test.setPlayerPos(123, {x = 123, y = 123, z = 123});
 
     -- Act
     local matrix = server.getPlayerPos(123);
@@ -250,7 +252,7 @@ function TestSW:testGetPlayerLookDirection()
         ["id"] = 1
     };
 
-    server.test_setPlayerLookDirection(1, {x = 1, y = 2, z = 3});
+    testsuite.test.setPlayerLookDirection(1, {x = 1, y = 2, z = 3});
 
     -- Act
     local lookDirection = server.getPlayerLookDirection(1);
@@ -292,7 +294,7 @@ function TestSW:testGetVehiclePos()
     -- Arrange
     local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
     local vehiclePos = {x = 4, y = 5, z = 6};
-    server.test_setVehiclePos(vehicleId, vehiclePos);
+    testsuite.test.setVehiclePos(vehicleId, vehiclePos);
 
     -- Act
     local matrix = server.getVehiclePos(vehicleId);
@@ -343,7 +345,7 @@ end
 function TestSW:testGetVehicleFireCount()
     -- Arrange
     local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
-    server.test_setVehicleFireCount(vehicleId, 2);
+    testsuite.test.setVehicleFireCount(vehicleId, 2);
 
     -- Act
     local fireCount = server.getVehicleFireCount(vehicleId);
@@ -681,7 +683,7 @@ function TestSW:testSetCurrency()
 end
 function TestSW:testGetTilePurchased()
     -- Arrange
-    server.test_setTilePurchased({x = 1, y = 2, z = 3});
+    testsuite.test.setTilePurchased({x = 1, y = 2, z = 3});
 
     -- Act
     local purchased = server.getTilePurchased({x = 1, y = 2, z = 3});
@@ -694,38 +696,38 @@ function TestSW:test_event_playerJoin()
 
     -- Arrange
     -- Act
-    server.event_playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
+    testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
 
     -- Assert
     lu.assertEquals(server.peers[2].steamid, 123);
 end
 function TestSW:test_event_playerLeave()
     -- Arrange
-    local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
+    local peerId = testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
 
     -- Act
-    server.event_playerLeave(peerId);
+    testsuite.event.playerLeave(peerId);
 
     -- Assert
     lu.assertIsNil(server.peers[2]);
 end
 function TestSW:test_event_vehicleSpawn()
     -- Arrange
-    local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
+    local peerId = testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
 
     -- Act
-    local vehicleId = server.event_vehicleSpawn(peerId, "AP's Vehicle", 0, 0, 0);
+    local vehicleId = testsuite.event.vehicleSpawn(peerId, "AP's Vehicle", 0, 0, 0);
 
     -- Assert
     lu.assertEquals(server.vehicles[1].owner, peerId);
 end
 function TestSW:test_event_playerTeleportVehicle()
     -- Arrange
-    local peerId = server.event_playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
-    local vehicleId = server.event_vehicleSpawn(peerId, "AP's Vehicle", 1, 2, 3);
+    local peerId = testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
+    local vehicleId = testsuite.event.vehicleSpawn(peerId, "AP's Vehicle", 1, 2, 3);
 
     -- Act
-    server.event_playerTeleportVehicle(peerId, vehicleId, 4, 5, 6);
+    testsuite.event.playerTeleportVehicle(peerId, vehicleId, 4, 5, 6);
 
     -- Assert
     lu.assertItemsEquals(server.vehicles[1].pos, {4, 5, 6});
