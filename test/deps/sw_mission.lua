@@ -800,7 +800,8 @@ function testsuite.event.playerJoin(steamid, peerId, name, isAdmin, isAuthed)
     peer.admin = isAdmin;
     peer.auth = isAuthed;
     peer.pos = {getRandomId(), getRandomId(), getRandomId()};
-    server.notify(-1, "[Server]", peer.name .. " joined the game", 5);
+    server.announce("[Server]", peer.name .. " joined the game", -1);
+    server.notify(peerId, "JOINED", "There are " .. (#server.peers - 1) .. " players connected", 7);
     if onPlayerJoin then
         onPlayerJoin(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
     end
@@ -812,7 +813,7 @@ function testsuite.event.playerLeave(peer_id)
     if onPlayerLeave then
         onPlayerLeave(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
     end
-    server.notify(-1, "[Server]", peer.name .. " left the game", 6);
+    server.announce("[Server]", peer.name .. " left the game", -1);
     destroyArrayElementById(server.peers, peer_id);
 end
 function testsuite.event.playerDie(peer_id)
