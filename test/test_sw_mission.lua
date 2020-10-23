@@ -188,15 +188,13 @@ function TestSW:testGetPlayerName()
 end
 function TestSW:testGetPlayers()
     -- Arrange
-    server.peers[1] = {
-        ["id"] = 123
-    }
+    local user1 = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
 
     -- Act
     local players = server.getPlayers();
 
     -- Assert
-    lu.assertEquals(#players, 1);
+    lu.assertEquals(#players, 2);
 end
 function TestSW:testGetPlayerPos()
     -- Arrange
@@ -226,35 +224,27 @@ function TestSW:testTeleportPlayer()
 end
 function TestSW:testKillPlayer()
     -- Arrange
-    server.peers[1] = {
-        ["id"] = 1
-    };
+    local user1 = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
 
     -- Act
-    server.killPlayer(1);
+    server.killPlayer(user1);
 end
 function TestSW:testSetSeated()
     -- Arrange
-    server.peers[1] = {
-        ["id"] = 1
-    };
-    server.vehicles[1] = {
-        ["id"] = 23
-    };
+    local user1 = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
+    local vehicle1 = testsuite.event.vehicleSpawn(user1, "Police", 0, 0, 0);
 
     -- Act
-    server.setSeated(1, 23, "Pilot");
+    server.setSeated(user1, vehicle1, "Pilot");
 end
 function TestSW:testGetPlayerLookDirection()
     -- Arrange
-    server.peers[1] = {
-        ["id"] = 1
-    };
+    local user1 = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
 
-    testsuite.test.setPlayerLookDirection(1, {x = 1, y = 2, z = 3});
+    testsuite.test.setPlayerLookDirection(user1, {x = 1, y = 2, z = 3});
 
     -- Act
-    local lookDirection = server.getPlayerLookDirection(1);
+    local lookDirection = server.getPlayerLookDirection(user1);
 
     -- Assert
     lu.assertTableContains(lookDirection, 3);
