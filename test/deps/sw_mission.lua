@@ -775,7 +775,7 @@ function testsuite.event.playerCommand(player_peer_id, command)
     printf("Peer %d ('%s') ran command '%s'", player_peer_id, (peer.name or ""), command);
     local commandSplit = string.split(command, " ");
     if onCustomCommand then
-        onCustomCommand("", player_peer_id, peer.admin, peer.auth, table.unpack(commandSplit));
+        onCustomCommand(command, player_peer_id, peer.admin, peer.auth, table.unpack(commandSplit));
     end
 end
 function testsuite.event.chatMessage(player_peer_id, message)
