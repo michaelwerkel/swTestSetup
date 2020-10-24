@@ -1,3 +1,5 @@
+![CI](https://github.com/Actr0n/swTestSetup/workflows/CI/badge.svg?branch=master)
+
 # VSCode Extensions:
 
 - formulahendry's Code Runner (Windows, Linux)
