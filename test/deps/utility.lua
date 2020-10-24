@@ -64,11 +64,22 @@ function string.split(str, splitChar)
     local stringSplit = {};
     local charIndex = string.find(str, splitChar);
     while charIndex do
+        ::continue::
+        -- if we got a space w/o preceding or trailing characters
+        if charIndex == 1 then
+            -- cut it off
+            str = string.sub(str, 2);
+            charIndex = string.find(str, splitChar);
+            goto continue;
+        end
         stringSplit[#stringSplit+1] = string.sub(str, 1, charIndex - 1);
         str = string.sub(str, charIndex + 1);
         charIndex = string.find(str, splitChar);
     end
-    stringSplit[#stringSplit+1] = str;
+    -- dont add unnecessary whitespace
+    if str ~= "" then
+        stringSplit[#stringSplit+1] = str;
+    end
     return stringSplit;
 end
 

@@ -802,5 +802,21 @@ function TestSW:test_removeAuth()
     lu.assertIsFalse(peer.auth);
 end
 
+--[[
+    Bugfixes
+]]
+function TestSW:test_bugfix_stringSplit_prefixSuffixSpaces()
+
+    -- Arrange
+    local myString = " Hello, World! ";
+
+    -- Act
+    local splitString = string.split(myString, " ");
+
+    -- Assert
+    lu.assertEquals(#splitString, 2);
+
+end
+
 local runner = lu.LuaUnit.new();
 os.exit(runner:run());
