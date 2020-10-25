@@ -16,6 +16,10 @@
 2. Copy the folder into a persistent folder (like Program Files) and add this folder to the PATH environment variable.
 3. Restart VSCode
 
+# Run tests
+
+In order to run tests, select your source file, which runs the tests and click the play button at the top right corner (`Run Code (Ctrl+Alt+N)`) of Visual Studio Code or press its shortcut.
+
 # Framework interaction
 
 ## Fire events
