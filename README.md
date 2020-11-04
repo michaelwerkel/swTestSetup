@@ -20,6 +20,12 @@
 
 In order to run tests, select your source file, which runs the tests and click the play button at the top right corner (`Run Code (Ctrl+Alt+N)`) of Visual Studio Code or press its shortcut.
 
+# TODOs
+
+The matrix functions are that far finished for compatibility only, by which i mean advanced calculations may result in
+oob errors.
+When that's the case, please fix those issues, thanks.
+
 # Framework interaction
 
 ## Fire events

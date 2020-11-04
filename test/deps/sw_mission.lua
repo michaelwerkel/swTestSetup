@@ -687,16 +687,32 @@ function server.removeAuth(peer_id)
     printf("Removed id %d ('%s') from authlist", peer_id, (peer.name or ""));
 end
 
+-- Matrix
+function addMissingMatrixFunctions(m1)
+    m1.rotationX = function(rad)
+    end
+    m1.rotationY = function(rad)
+    end
+    m1.rotationZ = function(rad)
+    end
+    return m1;
+end
+
 function matrix.multiply(matrix1, matrix2)
-    return modMatrix.mul(matrix1, matrix2);
+    local mulMatrix = modMatrix.mul(matrix1, matrix2);
+    return addMissingMatrixFunctions(mulMatrix);
 end
 function matrix.invert(matrix)
-    return modMatrix.invert(matrix);
+    local invMatrix = modMatrix.invert(matrix);
+    return addMissingMatrixFunctions(invMatrix);
 end
 function matrix.transpose(matrix)
-    return modMatrix.transpose(matrix);
+    local transMatrix = modMatrix.transpose(matrix);
+    return addMissingMatrixFunctions(transMatrix);
 end
 function matrix.identity()
+    local identMatrix = modMatrix:new(3, "I");
+    return addMissingMatrixFunctions(identMatrix);
 end
 function matrix.rotationX(radians)
 end
@@ -705,19 +721,19 @@ end
 function matrix.rotationZ(radians)
 end
 function matrix.translation(x,y,z)
-    return {x, y, z};
+    return addMissingMatrixFunctions({x, y, z});
 end
 function matrix.position(matrix)
     return matrix[1], matrix[2], matrix[3];
 end
 function matrix.distance(matrix1, matrix2)
+    local distMatrix = modMatrix.sub(matrix1, matrix2);
+    local poweredMatrix = modMatrix.pow(distMatrix, 2);
+    distMatrix = modMatrix.sqrt(poweredMatrix);
+    return addMissingMatrixFunctions(distMatrix);
 end
 
 -- Simulation
-
--- Excluded onTick, onPlayerSit, onPlayerRespawn, onToggleMap
--- onVehicleTeleport, onVehicleDespawn, onSpawnMissionObject,
--- onFireExtinguished
 
 function testsuite.event.onFireExtinguished(fire_x,fire_y,fire_z)
     if onFireExtinguished then
