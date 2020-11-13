@@ -107,7 +107,12 @@ function server.removeMapID(peer_id, ui_id)
     assureParameterInBounds("ui_id", ui_id, 1);
     server.mapObjects[peer_id][ui_id] = nil;
 end
-function server.addMapObject(peer_id, ui_id, POSITION_TYPE, MARKER_TYPE, x, y, z, parent_local_x, parent_local_y, parent_local_z, vehicle_id, object_id, label, vehicle_parent_id, radius, hover_label)
+--[[
+    Both y parameters removed on v1.0.21
+
+    function server.addMapObject(peer_id, ui_id, POSITION_TYPE, MARKER_TYPE, x, y, z, parent_local_x, parent_local_y, parent_local_z, vehicle_id, object_id, label, vehicle_parent_id, radius, hover_label)
+]]
+function server.addMapObject(peer_id, ui_id, POSITION_TYPE, MARKER_TYPE, x, z, parent_local_x, parent_local_z, vehicle_id, object_id, label, vehicle_parent_id, radius, hover_label)
     assureParameterInBounds("peer_id", peer_id, 1);
     assureParameterInBounds("ui_id", ui_id, 1);
     assureParameterInBounds("POSITION_TYPE", POSITION_TYPE, 0, 2);
@@ -118,10 +123,8 @@ function server.addMapObject(peer_id, ui_id, POSITION_TYPE, MARKER_TYPE, x, y, z
     server.mapObjects[peer_id][ui_id].mapObject.POSITION_TYPE = POSITION_TYPE;
     server.mapObjects[peer_id][ui_id].mapObject.MARKER_TYPE = MARKER_TYPE;
     server.mapObjects[peer_id][ui_id].mapObject.x = x;
-    server.mapObjects[peer_id][ui_id].mapObject.y = y;
     server.mapObjects[peer_id][ui_id].mapObject.z = z;
     server.mapObjects[peer_id][ui_id].mapObject.parent_local_x = parent_local_x;
-    server.mapObjects[peer_id][ui_id].mapObject.parent_local_y = parent_local_y;
     server.mapObjects[peer_id][ui_id].mapObject.parent_local_z = parent_local_z;
     server.mapObjects[peer_id][ui_id].mapObject.vehicle_id = vehicle_id;
     server.mapObjects[peer_id][ui_id].mapObject.object_id = object_id;
@@ -130,12 +133,18 @@ function server.addMapObject(peer_id, ui_id, POSITION_TYPE, MARKER_TYPE, x, y, z
     server.mapObjects[peer_id][ui_id].mapObject.radius = radius;
     server.mapObjects[peer_id][ui_id].mapObject.hover_label = hover_label;
 end
+
 function server.removeMapObject(peer_id, ui_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     assureParameterInBounds("ui_id", ui_id, 1);
     server.mapObjects[peer_id][ui_id].mapObject = nil;
 end
+--[[
+Paramter y removed on v1.0.21
+
 function server.addMapLabel(peer_id, ui_id, LABEL_TYPE, name, x, y, z)
+]]
+function server.addMapLabel(peer_id, ui_id, LABEL_TYPE, name, x, z)
     assureParameterInBounds("peer_id", peer_id, 1);
     assureParameterInBounds("ui_id", ui_id, 1);
     assureParameterInBounds("LABEL_TYPE", LABEL_TYPE, 0, 14);
@@ -168,7 +177,12 @@ function server.removeMapLine(peer_id, ui_id)
     assureParameterInBounds("ui_id", ui_id, 1);
     server.mapObjects[peer_id][ui_id].line = nil;
 end
-function server.setPopup(peer_id, ui_id, name, is_show, text, x, y, z, is_worldspace, render_distance)
+--[[
+    Parameter is_worldspace removed on v1.0.21
+    function server.setPopup(peer_id, ui_id, name, is_show, text, x, y, z, is_worldspace, render_distance)
+]]
+function server.setPopup(peer_id, ui_id, name, is_show, text, x, y, z, render_distance)
+    createPopup(peer_id, ui_id);
     assureParameterInBounds("peer_id", peer_id, 1);
     assureParameterInBounds("ui_id", ui_id, 1);
     getOrSetArr(server.mapObjects, peer_id)
@@ -182,7 +196,6 @@ function server.setPopup(peer_id, ui_id, name, is_show, text, x, y, z, is_worlds
     server.mapObjects[peer_id][ui_id].popup.x = x;
     server.mapObjects[peer_id][ui_id].popup.y = y;
     server.mapObjects[peer_id][ui_id].popup.z = z;
-    server.mapObjects[peer_id][ui_id].popup.is_worldspace = is_worldspace;
     server.mapObjects[peer_id][ui_id].popup.render_distance = render_distance;
 end
 function server.removePopup(peer_id, ui_id)
@@ -190,12 +203,29 @@ function server.removePopup(peer_id, ui_id)
     assureParameterInBounds("ui_id", ui_id, 1);
     server.mapObjects[peer_id][ui_id].popup = nil;
 end
+function server.setPopupScreen(peer_id, ui_id, name, is_show, text, horizontal_offset, vertical_offset)
+    createPopup(peer_id, ui_id);
+    assureParameterInBounds("peer_id", peer_id, 1);
+    assureParameterInBounds("ui_id", ui_id, 1);
+    getOrSetArr(server.mapObjects, peer_id)
+    getOrSetArr(server.mapObjects[peer_id], ui_id);
+    server.mapObjects[peer_id][ui_id].popup.name = name;
+    server.mapObjects[peer_id][ui_id].popup.is_show = is_show;
+    server.mapObjects[peer_id][ui_id].popup.text = text;
+    server.mapObjects[peer_id][ui_id].popup.horizontal_offset = horizontal_offset;
+    server.mapObjects[peer_id][ui_id].popup.vertical_offset = vertical_offset;
+end
+--[[
+Integrated into setPopup?
+Not showing up in in-game documentation anymore since v1.0.21
+
 function server.createPopup(peer_id, ui_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     getOrSetArr(server.mapObjects, peer_id)
     getOrSetArr(server.mapObjects[peer_id], ui_id);
     server.mapObjects[peer_id][ui_id].popup = {};
 end
+]]
 
 --Player
 function testsuite.test.setPlayerName(peer_id, name)
@@ -207,7 +237,11 @@ end
 function server.getPlayerName(peer_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
-    return peer and peer.name or nil;
+    if peer then
+        return peer.name, true;
+    else
+        return nil, false;
+    end
 end
 function server.getPlayers()
     return server.peers;
@@ -220,30 +254,51 @@ end
 function server.getPlayerPos(peer_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
-    return peer and peer.pos or nil;
+    if peer then
+        return peer.pos, true;
+    else
+        return nil, false;
+    end
 end
+--[[
+Renamed to setPlayerPos on v1.0.21
+
 function server.teleportPlayer(peer_id, matrix)
+]]
+function server.setPlayerPos(peer_id, matrix)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     peer.pos = matrix;
+    return true;
 end
+--[[
+Has been reworked on v1.0.21
+
 function server.killPlayer(peer_id)
-    assureParameterInBounds("peer_id", peer_id, 1);
-    local peer = getArrayElementById(server.peers, peer_id);
-    assureNotNil("peer", peer);
-    peer.hp = 0;
-    printf("Killed peer id %d ('%s')", peer_id, (peer.name or ""));
+]]
+function server.killCharacter(object_id)
+    assureParameterInBounds("object_id", object_id, 1);
+    local character = getArrayElementById(server.objects, object_id);
+    assureNotNil("character", character);
+    character.hp = 0;
+    character.is_incapacitated = true;
+    printf("Killed character id %d", object_id);
 end
-function server.setSeated(peer_id, vehicle_id, seat_name)
-    assureParameterInBounds("peer_id", peer_id, 1);
-    local peer = getArrayElementById(server.peers, peer_id);
-    assureNotNil("peer", peer);
+--[[
+Has been reworked on v1.0.21
+
+    function server.setSeated(peer_id, vehicle_id, seat_name)
+]]
+function server.setCharacterSeated(object_id, vehicle_id, seat_name)
+    assureParameterInBounds("object_id", object_id, 1);
+    local character = getArrayElementById(server.objects, object_id);
+    assureNotNil("character", character);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
     getOrSetArr(vehicle, "seats");
-    vehicle.seats[seat_name] = peer_id;
-    printf("Seated peer id %d ('%s') in %d ('%s') on %s", peer_id, (peer.name or ""), vehicle_id, (vehicle.name or ""), seat_name)
+    vehicle.seats[seat_name] = object_id;
+    printf("Seated peer id %d in %d on %s", object_id, vehicle_id, (vehicle.name or ""), seat_name)
 end
 function testsuite.test.setPlayerLookDirection(peer_id, lookDirection)
     getOrSetArr(server.peers, peer_id);
@@ -254,7 +309,21 @@ function server.getPlayerLookDirection(peer_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
-    return peer.lookDirection;
+    return peer.lookDirection, true;
+end
+function server.getPlayerCharacterID(peer_id)
+    assureParameterInBounds("peer_id", peer_id, 1);
+    local peer = getArrayElementById(server.peers, peer_id);
+    assureNotNil("peer", peer);
+    return peer.characterId;
+end
+function server.reviveCharacter(object_id)
+    assureParameterInBounds("object_id", object_id, 1);
+    local character = getArrayElementById(server.objects, object_id);
+    assureNotNil("character", character);
+    character.hp = 1;
+    character.is_incapacitated = false;
+    printf("Revived character id %d", object_id);
 end
 
 --Vehicle
@@ -266,21 +335,23 @@ function server.spawnVehicle(matrix, playlist_index, component_id)
     local vehicleIndex = #server.vehicles + 1;
     local vehicleId = getRandomId();
     getOrSetArr(server.vehicles, vehicleIndex);
+    addTableVehicleAttributes(server.vehicles[vehicleIndex]);
     server.vehicles[vehicleIndex].id = vehicleId;
     server.vehicles[vehicleIndex].pos = matrix;
     server.vehicles[vehicleIndex].component_id = component_id;
     server.vehicles[vehicleIndex].playlist_index = playlist_index;
-    return vehicleId;
+    return vehicleId, true;
 end
 function server.spawnVehicleSavefile(matrix, save_name)
     local vehicleIndex = #server.vehicles + 1;
     local vehicleId = getRandomId();
     getOrSetArr(server.vehicles, vehicleIndex);
+    addTableVehicleAttributes(server.vehicles[vehicleIndex]);
     server.vehicles[vehicleIndex].id = vehicleId;
     server.vehicles[vehicleIndex].pos = matrix;
     server.vehicles[vehicleIndex].save_name = save_name;
     server.vehicles[vehicleIndex].name = save_name;
-    return vehicleId;
+    return vehicleId, true;
 end
 function server.despawnVehicle(vehicle_id, is_instant)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
@@ -288,6 +359,7 @@ function server.despawnVehicle(vehicle_id, is_instant)
     assureNotNil("vehicleId", vehicle);
     destroyArrayElementById(server.vehicles, vehicle_id);
     printf("Despawned vehicle %d ('%s') %s", vehicle_id, (vehicle.name or ""), (is_instant and "instantly" or ""))
+    return true;
 end
 function testsuite.test.setVehiclePos(vehicle_id, matrix)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
@@ -302,20 +374,26 @@ function server.getVehiclePos(vehicle_id, voxel_x, voxel_y, voxel_z)
     if voxel_x and voxel_y and voxel_z then
         error("Voxel Position are not implemented yet.");
     else
-        return vehicle.pos;
+        return vehicle.pos, true;
     end
 end
 function server.getVehicleName(vehicle_id)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
-    return vehicle.name;
+    return vehicle.name, true;
 end
+--[[
+Renamed to setVehiclePos on v1.0.21
+
 function server.teleportVehicle(matrix, vehicle_id)
+]]
+function server.setVehiclePos(matrix, vehicle_id)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
     vehicle.pos = matrix;
+    return true;
 end
 function server.cleanVehicles()
     server.vehicles = {};
@@ -324,8 +402,14 @@ function server.pressVehicleButton(vehicle_id, button_name)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
-    -- TODO: Make testable
+    vehicle.buttons[button_name] = true;
     printf("Button '%s' of vehicle '%d' ('%s') has been pressed.", button_name, vehicle_id, (vehicle.name or ""));
+end
+function server.getVehicleButton(vehicle_id, button_name)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1)
+    local vehicle = getArrayElementById(server.vehicles, vehicle_id);
+    assureNotNil("vehicle", vehicle);
+    return vehicle.buttons[button_name];
 end
 function testsuite.test.setVehicleFireCount(vehicle_id, count)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
@@ -369,14 +453,31 @@ function server.setVehicleEditable(vehicle_id, is_editable)
     assureNotNil("vehicle", vehicle);
     vehicle.editable = is_editable;
 end
+function server.setVehicleSeat(vehicle_id, seat_name, axis_w, axis_d, axis_up, axis_right, button1, button2, button3, button4, button5, button6)
+    assureParameterInBounds("vehicle_id", vehicle_id, 1);
+    local vehicle = getArrayElementById(server.vehicles, vehicle_id);
+    assureNotNil("vehicle", vehicle);
+    local seat = getOrSetArr(vehicle.seats, seat_name);
+    seat.axis_w = axis_w;
+    seat.axis_d = axis_d;
+    seat.axis_up = axis_up;
+    seat.axis_right = axis_right;
+    seat.button1 = button1;
+    seat.button2 = button2;
+    seat.button3 = button3;
+    seat.button4 = button4;
+    seat.button5 = button5;
+    seat.button6 = button6;
+end
 
 --Mission
 function server.getPlaylistIndexByName(name)
     for playListIndex = 1, #server.playlists do
         if server.playlists[playListIndex].name == name then
-            return playListIndex;
+            return playListIndex, true;
         end
     end
+    return nil, false;
 end
 function testsuite.test.setPlaylistIndexCurrent(currentPlaylistIndex)
     server.playlists.currentPlaylistIndex = currentPlaylistIndex;
@@ -389,9 +490,10 @@ function server.getLocationIndexByName(playlist_index, name)
     getOrSetArr(server.playlists[playlist_index].locations, {});
     for locationIndex = 1, #server.playlists[playlist_index].locations do
         if server.playlists[playlist_index].locations[locationIndex].name == name then
-            return locationIndex;
+            return locationIndex, true;
         end
     end
+    return nil, false;
 end
 function server.spawnThisPlaylistMissionLocation(name)
     local currentPlaylistIndex = server.getPlaylistIndexCurrent();
@@ -400,6 +502,7 @@ function server.spawnThisPlaylistMissionLocation(name)
     assureNotNil("locationIndex", locationIndex);
     server.playlists[currentPlaylistIndex].locations[locationIndex].spawned = true;
     printf("Location %d of playlist %d spawned.", locationIndex, currentPlaylistIndex);
+    return true;
 end
 function server.spawnMissionLocation(matrix, playlist_index, location_index)
     assureNotNil("matrix", matrix);
@@ -408,16 +511,17 @@ function server.spawnMissionLocation(matrix, playlist_index, location_index)
     if matrix[1] == 0 and matrix[2] == 0 and matrix[3] == 0 then
         matrix = modMatrix.random(matrix);
     end
-    server.playlists[playlist_index].locations[location_index].pos = matrix;
-    server.playlists[playlist_index].locations[location_index].spawned = true;
-    return matrix;
+    local missionLocation = server.playlists[playlist_index].locations[location_index];
+    missionLocation.pos = matrix;
+    missionLocation.spawned = true;
+    return matrix, true;
 end
 function server.getPlaylistPath(playlist_name, is_rom)
     local playlistIndex = server.getPlaylistIndexByName(playlist_name);
     assureNotNil("playlistIndex", playlistIndex);
     local playList = server.playlists[playlistIndex];
     assureNotNil("playList", playList);
-    return playList.filePath;
+    return playList.filePath, true;
 end
 function server.spawnObject(matrix, OBJECT_TYPE)
     assureParameterInBounds("OBJECT_TYPE", OBJECT_TYPE, 0, 63);
@@ -428,15 +532,28 @@ function server.spawnObject(matrix, OBJECT_TYPE)
     server.objects[objectIndex].type = OBJECT_TYPE;
     server.objects[objectIndex].is_found = false;
     server.objects[objectIndex].pos = matrix;
-    return objectId;
+    return objectId, true;
 end
 function server.getObjectPos(object_id)
     assureParameterInBounds("object_id", object_id, 1);
     local object = getArrayElementById(server.objects, object_id);
     assureNotNil("object", object);
-    return object.is_found, object.pos;
+    return  object.pos, true;
 end
+function server.setObjectPos(object_id, matrix)
+    assureParameterInBounds("object_id", object_id, 1);
+    assureNotNil("matrix", matrix);
+    local object = getArrayElementById(server.objects, object_id);
+    assureNotNil("object", object);
+    object.pos = matrix;
+    return true;
+end
+--[[
+Parameter is_initialzied has been removed on v1.0.21
+
 function server.spawnFire(matrix, size, magnitude, is_lit, is_initialzied, is_explosive, parent_vehicle_id, explosion_magnitude)
+]]
+function server.spawnFire(matrix, size, magnitude, is_lit, is_explosive, parent_vehicle_id, explosion_magnitude)
     assureParameterInBounds("parent_vehicle_id", parent_vehicle_id, 1);
     local objectIndex = #server.objects + 1;
     local objectId = getRandomId();
@@ -446,15 +563,15 @@ function server.spawnFire(matrix, size, magnitude, is_lit, is_initialzied, is_ex
     server.objects[objectIndex].size = size;
     server.objects[objectIndex].magnitude = magnitude;
     server.objects[objectIndex].is_lit = is_lit;
-    server.objects[objectIndex].is_initialized = is_initialzied;
     server.objects[objectIndex].is_explosive = is_explosive;
     server.objects[objectIndex].parent_vehicle_id = parent_vehicle_id;
     server.objects[objectIndex].explosion_magnitude = explosion_magnitude;
-    return objectId;
+    return objectId, true;
 end
 function server.despawnObject(object_id, is_instant)
     assureParameterInBounds("object_id", object_id, 1);
     destroyArrayElementById(server.objects, object_id);
+    return true;
 end
 function server.spawnCharacter(matrix, outfit_id)
     assureParameterInBounds("outfit_id", outfit_id, 0, 11);
@@ -466,7 +583,7 @@ function server.spawnCharacter(matrix, outfit_id)
     server.objects[characterIndex].pos = matrix;
     server.objects[characterIndex].is_incapacitated = false;
     server.objects[characterIndex].hp = 1;
-    return characterId;
+    return characterId, true;
 end
 function server.spawnAnimal(matrix, animal_type, scale)
     assureParameterInBounds("animal_type", animal_type, 1, 5);
@@ -477,17 +594,21 @@ function server.spawnAnimal(matrix, animal_type, scale)
     server.objects[objectIndex].pos = matrix;
     server.objects[objectIndex].animal_type = animal_type;
     server.objects[objectIndex].scale = scale;
-    return objectId;
+    return objectId, true;
 end
+--[[
+Removed on v1.0.21
+
 function server.despawnCharacter(object_id, is_instant)
     assureParameterInBounds("object_id", object_id, 1);
     destroyArrayElementById(server.objects, object_id);
 end
+]]
 function server.getCharacterData(object_id)
     assureParameterInBounds("object_id", object_id, 1);
     local character = getArrayElementById(server.objects, object_id);
     assureNotNil("character", character);
-    return character.hp, character.pos, character.is_incapacitated, character.hp == 0;
+    return character.hp, character.pos, character.is_incapacitated, character.hp == 0, character.is_interactable;
 end
 function server.setCharacterData(object_id, hp, is_interactable)
     assureParameterInBounds("object_id", object_id, 1);
@@ -508,6 +629,13 @@ function server.setCharacterItem(object_id, slot, EQUIPMENT_ID, is_active)
         character.activeSlot = slot;
     end
     printf("Character '%d' has item '%d' on slot %d and it's %s", object_id, EQUIPMENT_ID, slot, (is_active and "active" or "not active"));
+end
+function server.getCharacterItem(object_id, SLOT_NUMBER)
+    assureParameterInBounds("object_id", object_id, 1);
+    assureParameterInBounds("slot", SLOT_NUMBER, 1, 6);
+    local character = getArrayElementById(server.objects, object_id);
+    assureNotNil("character", character);
+    return character.inventory[SLOT_NUMBER];
 end
 function server.getTutorial()
     return server.playlists.tutorial and server.playlists.tutorial or false;
@@ -535,7 +663,12 @@ function server.isInZone(matrix, zone_display_name)
     -- TODO
     error("Matrix not implemented yet.");
 end
+--[[
+Renamed on v1.0.21
+
 function server.spawnMissionObject(matrix, playlist_index, location_index, object_index)
+]]
+function server.spawnMissionComponent(matrix, playlist_index, location_index, object_index)
     assureNotNil("matrix", matrix);
     assureNotNil("server.playlists[playlist_index]", server.playlists[playlist_index]);
     assureNotNil("server.playlists[playlist_index].locations[location_index]", server.playlists[playlist_index].locations[location_index]);
@@ -545,14 +678,18 @@ function server.spawnMissionObject(matrix, playlist_index, location_index, objec
     assureNotNil("object", object);
     object.spawned = true;
     printf("Spawned object %d of playlist %d and its location %d", object_index, playlist_index, location_index);
-    return object.id;
+    return object.id, true;
 end
+--[[
+Removed on v1.0.21
+
 function server.despawnMissionObject(object_id, is_instant)
     local object = getArrayElementById(server.objects, object_id);
     assureNotNil("object", object);
     object.spawned = false;
     printf("Despawned object with id %d %s", object_id, (is_instant and "instantly" or ""));
 end
+]]
 function server.getPlaylistCount()
     return #server.playlists;
 end
@@ -560,17 +697,16 @@ function server.getPlaylistData(playlist_index)
     return server.playlists[playlist_index];
 end
 function server.getLocationData(playlist_index, location_index)
-    return server.playlists[playlist_index].locations[location_index];
+    return server.playlists[playlist_index].locations[location_index], true;
 end
-function server.getLocationObjectData(playlist_index, location_index, object_index)
-    assureNotNil("matrix", matrix);
+function server.getLocationComponentData(playlist_index, location_index, object_index)
     assureNotNil("server.playlists[playlist_index]", server.playlists[playlist_index]);
     assureNotNil("server.playlists[playlist_index].locations[location_index]", server.playlists[playlist_index].locations[location_index]);
     local objectId = server.playlists[playlist_index].locations[location_index].objects[object_index];
     assureNotNil("objectId", objectId);
     local object = getArrayElementById(server.objects, objectId);
     assureNotNil("object", object);
-    return object;
+    return object, true;
 end
 function server.setFireData(object_id, is_lit, is_explosive)
     assureParameterInBounds("object_id", object_id, 1)
@@ -737,7 +873,12 @@ function testsuite.event.onFireExtinguished(fire_x,fire_y,fire_z)
         onFireExtinguished(fire_x,fire_y,fire_z);
     end
 end
+--[[
+Renamed on v1.0.21
+
 function testsuite.event.onSpawnMissionObject(object_id, name, TYPE_STRING, playlist_index)
+]]
+function testsuite.event.onSpawnMissionComponent(object_id, name, TYPE_STRING, playlist_index)
     if onSpawnMissionObject then
         onSpawnMissionObject(object_id, name, TYPE_STRING, playlist_index);
     end
@@ -795,32 +936,33 @@ function testsuite.event.chatMessage(player_peer_id, message)
     local peer = getArrayElementById(server.peers, player_peer_id);
     assureNotNil("peer", peer);
     if onChatMessage then
-        onChatMessage(peer.name, message);
+        onChatMessage(player_peer_id, peer.name, message);
     end
 end
-function testsuite.event.playerJoin(steamid, peerId, name, isAdmin, isAuthed)
+function testsuite.event.playerJoin(steam_id, peerId, name, isAdmin, isAuthed)
     if #server.peers == 0 then
         server.peers[1] = {
             id = 0,
             name = "Server",
-            steamid = "90071992547409920"
+            steam_id = "90071992547409920"
         };
         if onPlayerJoin then
-            onPlayerJoin(server.peers[1].steamid, server.peers[1].name, 0, true, true);
+            onPlayerJoin(server.peers[1].steam_id, server.peers[1].name, 0, true, true);
         end
     end
     local peerIndex = #server.peers + 1;
     local peer = getOrSetArr(server.peers, peerIndex);
     peer.id = peerId;
-    peer.steamid = steamid;
+    peer.steam_id = steam_id;
     peer.name = name;
     peer.admin = isAdmin;
     peer.auth = isAuthed;
     peer.pos = {getRandomId(), getRandomId(), getRandomId()};
+    peer.characterId = server.spawnCharacter(peer.pos, getRandomId(0, 11));
     server.announce("[Server]", peer.name .. " joined the game", -1);
     server.notify(peerId, "JOINED", "There are " .. (#server.peers - 1) .. " players connected", 7);
     if onPlayerJoin then
-        onPlayerJoin(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
+        onPlayerJoin(peer.steam_id, peer.name, peer.id, peer.admin, peer.auth);
     end
     return peerId;
 end
@@ -828,7 +970,7 @@ function testsuite.event.playerLeave(peer_id)
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     if onPlayerLeave then
-        onPlayerLeave(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
+        onPlayerLeave(peer.steam_id, peer.name, peer.id, peer.admin, peer.auth);
     end
     server.announce("[Server]", peer.name .. " left the game", -1);
     destroyArrayElementById(server.peers, peer_id);
@@ -836,10 +978,10 @@ end
 function testsuite.event.playerDie(peer_id)
     local peer = getArrayElementById(server.peers);
     if onPlayerDie then
-        onPlayerDie(peer.steamid, peer.name, peer.id, peer.admin, peer.auth);
+        onPlayerDie(peer.steam_id, peer.name, peer.id, peer.admin, peer.auth);
     end
 end
-function testsuite.event.vehicleSpawn(peer_id, vehicleName, x, y, z)
+function testsuite.event.vehicleSpawn(peer_id, vehicleName, x, y, z, cost)
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     if not peer.auth then
@@ -853,8 +995,9 @@ function testsuite.event.vehicleSpawn(peer_id, vehicleName, x, y, z)
     vehicle.owner = peer_id;
     vehicle.name = vehicleName;
     vehicle.pos = {x, y, z};
+    vehicle.cost = cost;
     if onVehicleSpawn then
-        onVehicleSpawn(vehicleId, peer_id, x, y, z);
+        onVehicleSpawn(vehicleId, peer_id, x, y, z, cost);
     end
     return vehicleId;
 end
@@ -864,5 +1007,16 @@ function testsuite.event.playerTeleportVehicle(peer_id, vehicle_id, x, y, z)
     vehicle.pos = {x, y, z};
     if onVehicleTeleport then
         onVehicleTeleport(vehicle_id, peer_id, x, y, z);
+    end
+end
+--[[
+    The v1.0.21 update states this event is in the server table,
+    which means the testsuite would need a rework.
+]]
+function testsuite.event.onCharacterSit(peer_id, vehicle_id, seat_name)
+    local peerCharaterId = server.getPlayerCharacterID(peer_id);
+    server.setCharacterSeated(peerCharaterId, vehicle_id, seat_name);
+    if onCharacterSit then
+        onCharacterSit(peer_id, vehicle_id, seat_name)
     end
 end

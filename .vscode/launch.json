@@ -14,7 +14,7 @@
             "type": "lua",
             "request": "launch",
             "name": "Debug Stormworks Framework",
-            "program": "${workspaceFolder}/test/test_sw_mission.lua"
+            "program": "${workspaceFolder}/test/deps/test/test_sw_mission.lua"
         }
     ]
 }

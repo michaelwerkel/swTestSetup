@@ -17,7 +17,8 @@
         "onToggleMap",
         "onVehicleDespawn",
         "onSpawnMissionObject",
-        "onTick"
+        "onTick",
+        "onCharacterSit"
     ],
     "Lua.runtime.version": "Lua 5.3"
 }

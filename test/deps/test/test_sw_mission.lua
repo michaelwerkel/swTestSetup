@@ -138,7 +138,6 @@ function TestSW:testSetPopUp()
     local uiId = server.getMapID();
 
     server.addMapObject(1, uiId, 2, 6, 123, 123, 123, 0, 0, 0, 23, 23, "MyMapObject", 12, 166, "Rescue plz");
-    server.createPopup(1, uiId);
 
     -- Act
     server.setPopup(1, uiId, "MyPopup", true, "MyPopUpText", 123, 123, 123, false, 321);
@@ -152,7 +151,6 @@ function TestSW:testRemovePopUp()
     local uiId = server.getMapID();
 
     server.addMapObject(1, uiId, 2, 6, 123, 123, 123, 0, 0, 0, 23, 23, "MyMapObject", 12, 166, "Rescue plz");
-    server.createPopup(1, uiId);
 
     -- Act
     server.removePopup(1, uiId);
@@ -160,6 +158,9 @@ function TestSW:testRemovePopUp()
     -- Assert
     lu.assertIsTrue(server.mapObjects[1][uiId].popup == nil);
 end
+--[[
+createPopup has been removed on v1.0.21
+
 function TestSW:testCreatePopup()
     --Arrange
     server.mapObjects[1] = {};
@@ -173,6 +174,7 @@ function TestSW:testCreatePopup()
     -- Assert
     lu.assertIsTrue(server.mapObjects[1][uiId].popup ~= nil);
 end
+]]
 function TestSW:testGetPlayerName()
     -- Arrange
     server.peers[1] = {
@@ -188,7 +190,7 @@ function TestSW:testGetPlayerName()
 end
 function TestSW:testGetPlayers()
     -- Arrange
-    local user1 = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
+    local peerId = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
 
     -- Act
     local players = server.getPlayers();
@@ -210,32 +212,57 @@ function TestSW:testGetPlayerPos()
     -- Assert
     lu.assertTableContains(matrix, 123);
 end
-function TestSW:testTeleportPlayer()
+function TestSW:testSetPlayerPos()
     -- Arrange
     server.peers[123] = {
         ["id"] = 1
     };
 
     -- Act
-    server.teleportPlayer(1, {x = 1, y = 2, z = 3});
+    server.setPlayerPos(1, {x = 1, y = 2, z = 3});
 
     -- Assert
     lu.assertTableContains(server.peers[123].pos, 3);
 end
-function TestSW:testKillPlayer()
+function TestSW:testKillCharacter()
     -- Arrange
-    local user1 = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
+    local peerId = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
+    local characterId = server.getPlayerCharacterID(peerId);
 
     -- Act
-    server.killPlayer(user1);
+    server.killCharacter(characterId);
+
+    -- Assert
+    local character = getArrayElementById(server.objects, characterId);
+    lu.assertEquals(character.hp, 0);
+    lu.assertIsTrue(character.is_incapacitated)
 end
-function TestSW:testSetSeated()
+function TestSW:testReviveCharacter()
     -- Arrange
-    local user1 = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
-    local vehicle1 = testsuite.event.vehicleSpawn(user1, "Police", 0, 0, 0);
+    local peerId = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
+    local characterId = server.getPlayerCharacterID(peerId);
+    server.killCharacter(characterId);
 
     -- Act
-    server.setSeated(user1, vehicle1, "Pilot");
+    server.reviveCharacter(characterId);
+
+    -- Assert
+    local character = getArrayElementById(server.objects, characterId);
+    lu.assertEquals(character.hp, 1);
+    lu.assertIsFalse(character.is_incapacitated)
+end
+function TestSW:testSetCharacterSeated()
+    -- Arrange
+    local peerId = testsuite.event.playerJoin(getRandomId(), getRandomId(), "ActionedPlayer", true, true);
+    local vehicleId = testsuite.event.vehicleSpawn(peerId, "Police", 0, 0, 0);
+    local characterId = server.getPlayerCharacterID(peerId);
+
+    -- Act
+    server.setCharacterSeated(characterId, vehicleId, "Pilot");
+
+    -- Assert
+    local vehicle = getArrayElementById(server.vehicles, vehicleId);
+    lu.assertEquals(vehicle.seats.Pilot, characterId);
 end
 function TestSW:testGetPlayerLookDirection()
     -- Arrange
@@ -248,6 +275,16 @@ function TestSW:testGetPlayerLookDirection()
 
     -- Assert
     lu.assertTableContains(lookDirection, 3);
+end
+function TestSW:testGetPlayerCharacterId()
+    -- Arrange
+    local user1 = testsuite.event.playerJoin(getRandomId(), 123, "ActionedPlayer", true, true);
+
+    -- Act
+    local characterId = server.getPlayerCharacterID(123);
+
+    -- Assert
+    lu.assertIsTrue(characterId >= 1);
 end
 function TestSW:testSpawnVehicle()
     -- Arrange
@@ -302,14 +339,15 @@ function TestSW:testGetVehicleName()
     -- Assert
     lu.assertEquals(vehicleName, "MyVehicle");
 end
-function TestSW:testTeleportVehicle()
+function TestSW:testSetVehiclePos()
     -- Arrange
     local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
     server.vehicles[1].pos = {x = 1, y = 2, z = 3};
     local newPos = {x = 4, y = 5, z = 6};
 
     -- Act
-    server.teleportVehicle(newPos, vehicleId);
+    --server.teleportVehicle(newPos, vehicleId);
+    server.setVehiclePos(newPos, vehicleId);
 
     -- Assert
     lu.assertEquals(server.vehicles[1].pos, newPos);
@@ -324,12 +362,28 @@ function TestSW:testCleanVehicles()
     -- Assert
     lu.assertIsNil(server.vehicles[1]);
 end
+function TestSW:testGetVehicleButton()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+    server.pressVehicleButton(vehicleId, "MyButton");
+
+    -- Act
+    local pressed = server.getVehicleButton(vehicleId, "MyButton");
+
+    -- Assert
+    local vehicle = getArrayElementById(server.vehicles, vehicleId);
+    lu.assertEquals(pressed, vehicle.buttons.MyButton);
+end
 function TestSW:testPressVehicleButton()
     -- Arrange
     local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
 
     -- Act
     server.pressVehicleButton(vehicleId, "MyButton");
+
+    -- Assert
+    local vehicle = getArrayElementById(server.vehicles, vehicleId);
+    lu.assertIsTrue(vehicle.buttons.MyButton);
 end
 function TestSW:testGetVehicleFireCount()
     -- Arrange
@@ -382,6 +436,17 @@ function TestSW:testSetVehicleEditable()
 
     -- Assert
     lu.assertEquals(server.vehicles[1].editable, false);
+end
+function TestSW:testSetVehicleSeatButton()
+    -- Arrange
+    local vehicleId = server.spawnVehicleSavefile({x = 1, y = 2, z = 3}, "vehicle.xml");
+
+    -- Act
+    server.setVehicleSeat(vehicleId, "MySeat", 0, 0, 0, 0, true);
+
+    -- Assert
+    local vehicle = getArrayElementById(server.vehicles, vehicleId);
+    lu.assertIsTrue(true, vehicle.seats.MySeat.button1);
 end
 
 function TestSW:testGetPlaylistIndexByName()
@@ -465,15 +530,15 @@ function TestSW:testGetObjectPos()
     local objectId = server.spawnObject(objectPos, 21);
 
     -- Assert
-    local found, pos = server.getObjectPos(objectId);
+    local pos, success = server.getObjectPos(objectId);
 
     -- Assert
-    lu.assertEquals(found, false);
+    lu.assertEquals(success, true);
     lu.assertEquals(pos, objectPos);
 end
 function TestSW:testSpawnFire()
     -- Act
-    local fireId = server.spawnFire({x = 1, y = 2, z = 3}, 2, 3, false, false, false, 1, 4);
+    local fireId = server.spawnFire({x = 1, y = 2, z = 3}, 2, 3, false, false, 1, 4);
 
     -- Assert
     lu.assertNotIsNil(server.objects[1])
@@ -502,6 +567,9 @@ function TestSW:testSpawnAnimal()
     -- Assert
     lu.assertEquals(server.objects[1].animal_type, 1);
 end
+--[[
+Removed on v1.0.21
+
 function TestSW:testDespawnCharacter()
     -- Arrange
     local objectId = server.spawnCharacter({x = 1, y = 2, z = 3}, 7);
@@ -512,6 +580,7 @@ function TestSW:testDespawnCharacter()
     -- Assert
     lu.assertIsNil(server.objects[1]);
 end
+]]
 function TestSW:testGetCharacterData()
     -- Arrange
     local objectId = server.spawnCharacter({x = 1, y = 2, z = 3}, 7);
@@ -542,6 +611,17 @@ function TestSW:testSetCharacterItem()
     -- Arrange
     lu.assertEquals(server.objects[1].inventory[3], 17);
 end
+function TestSW:testGetCharacterItem()
+    -- Arrange
+    local objectId = server.spawnCharacter({x = 1, y = 2, z = 3}, 7);
+    server.setCharacterItem(objectId, 3, 17, false);
+
+    -- Act
+    local equipmentId = server.getCharacterItem(objectId, 3);
+
+    -- Arrange
+    lu.assertEquals(equipmentId, 17);
+end
 function TestSW:testGetZones()
     -- Arrange
     server.zones[1] = {
@@ -558,8 +638,9 @@ end
 function TestSW:testIsInZone()
     server.isInZone()
 end
-function TestSW:testSpawnMissionObject()
+function TestSW:testSpawnMissionComponent()
     -- Arrange
+    --TODO: simplify
     server.objects[1] = {
         id = 123
     }
@@ -574,11 +655,14 @@ function TestSW:testSpawnMissionObject()
     }
 
     -- Act
-    local objectId = server.spawnMissionObject({0, 0, 0}, 1, 1, 1);
+    local objectId = server.spawnMissionComponent({0, 0, 0}, 1, 1, 1);
 
     -- Assert
     lu.assertIsTrue(server.objects[1].spawned);
 end
+--[[
+Removed on v1.0.21
+
 function TestSW:testDespawnMissionObject()
     -- Arrange
     server.objects = {
@@ -604,6 +688,7 @@ function TestSW:testDespawnMissionObject()
     -- Assert
     lu.assertIsFalse(server.objects[1].spawned);
 end
+]]
 function TestSW:testGetLocationObjectData()
     -- Arrange
     server.objects = {
@@ -620,17 +705,17 @@ function TestSW:testGetLocationObjectData()
             }
         }
     }
-    local objectId = server.spawnMissionObject({0, 0, 0}, 1, 1, 1);
+    local objectId = server.spawnMissionComponent({0, 0, 0}, 1, 1, 1);
 
     -- Act
-    local objectData = server.getLocationObjectData(1, 1, 1);
+    local objectData = server.getLocationComponentData(1, 1, 1);
 
     -- Assert
     lu.assertIsTrue(objectData.spawned);
 end
 function TestSW:testSetFireData()
     -- Arrange
-    local fireId = server.spawnFire({x = 1, y = 2, z = 3}, 2, 3, false, false, false, 1, 4);
+    local fireId = server.spawnFire({x = 1, y = 2, z = 3}, 2, 3, false, false, 1, 4);
 
     -- Act
     server.setFireData(fireId, true, false);
@@ -640,7 +725,7 @@ function TestSW:testSetFireData()
 end
 function TestSW:testGetFireData()
     -- Arrange
-    local fireId = server.spawnFire({x = 1, y = 2, z = 3}, 2, 3, false, false, false, 1, 4);
+    local fireId = server.spawnFire({x = 1, y = 2, z = 3}, 2, 3, false, false, 1, 4);
     server.setFireData(fireId, true, false);
 
     -- Act
@@ -688,7 +773,7 @@ function TestSW:test_event_playerJoin()
     testsuite.event.playerJoin(123, getRandomId(), "ActionedPlayer", true, true);
 
     -- Assert
-    lu.assertEquals(server.peers[2].steamid, 123);
+    lu.assertEquals(server.peers[2].steam_id, 123);
 end
 function TestSW:test_event_playerLeave()
     -- Arrange

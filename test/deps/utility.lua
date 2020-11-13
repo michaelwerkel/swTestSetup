@@ -38,8 +38,8 @@ function getOrSetArr(root, index)
         return root[index];
     end
 end
-function getRandomId()
-    return math.random(1, 999999);
+function getRandomId(min, max)
+    return math.random(min or 1, max or 999999);
 end
 function getArrayElementBy(arrRoot, index, id)
     for _, element in pairs(arrRoot) do
@@ -88,4 +88,22 @@ function assureColorInBounds(r, g, b, a)
     assureParameterInBounds("g", g, 0, 255);
     assureParameterInBounds("b", b, 0, 255);
     assureParameterInBounds("a", a, 0, 1);
+end
+
+function addTableVehicleAttributes(vehicleTable)
+    vehicleTable.id = -1;
+    vehicleTable.pos = {0, 0, 0};
+    vehicleTable.save_name = "";
+    vehicleTable.name = "";
+    vehicleTable.buttons = {};
+    vehicleTable.seats = {};
+    vehicleTable.component_id = 0;
+    vehicleTable.playlist_index = 0;
+end
+
+function createPopup(peer_id, ui_id)
+    assureParameterInBounds("peer_id", peer_id, 1);
+    getOrSetArr(server.mapObjects, peer_id)
+    getOrSetArr(server.mapObjects[peer_id], ui_id);
+    server.mapObjects[peer_id][ui_id].popup = {};
 end
