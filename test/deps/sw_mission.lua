@@ -688,40 +688,37 @@ function server.removeAuth(peer_id)
 end
 
 -- Matrix
-function addMissingMatrixFunctions(m1)
-    m1.rotationX = function(rad)
-    end
-    m1.rotationY = function(rad)
-    end
-    m1.rotationZ = function(rad)
-    end
-    return m1;
-end
+function matrix:new()
+    obj = obj or {};
+    setmetatable(obj, self);
+    self.__index = self;
 
+    return obj;
+end
 function matrix.multiply(matrix1, matrix2)
     local mulMatrix = modMatrix.mul(matrix1, matrix2);
-    return addMissingMatrixFunctions(mulMatrix);
+    return mulMatrix;
 end
 function matrix.invert(matrix)
     local invMatrix = modMatrix.invert(matrix);
-    return addMissingMatrixFunctions(invMatrix);
+    return invMatrix;
 end
 function matrix.transpose(matrix)
     local transMatrix = modMatrix.transpose(matrix);
-    return addMissingMatrixFunctions(transMatrix);
+    return transMatrix;
 end
 function matrix.identity()
     local identMatrix = modMatrix:new(3, "I");
-    return addMissingMatrixFunctions(identMatrix);
+    return identMatrix;
 end
-function matrix.rotationX(radians)
+function matrix:rotationX(radians)
 end
-function matrix.rotationY(radians)
+function matrix:rotationY(radians)
 end
-function matrix.rotationZ(radians)
+function matrix:rotationZ(radians)
 end
 function matrix.translation(x,y,z)
-    return addMissingMatrixFunctions({x, y, z});
+    return {x, y, z};
 end
 function matrix.position(matrix)
     return matrix[1], matrix[2], matrix[3];
@@ -730,7 +727,7 @@ function matrix.distance(matrix1, matrix2)
     local distMatrix = modMatrix.sub(matrix1, matrix2);
     local poweredMatrix = modMatrix.pow(distMatrix, 2);
     distMatrix = modMatrix.sqrt(poweredMatrix);
-    return addMissingMatrixFunctions(distMatrix);
+    return distMatrix;
 end
 
 -- Simulation
