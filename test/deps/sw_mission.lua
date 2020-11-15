@@ -57,6 +57,12 @@ testsuite = {
 }
 
 --UI
+
+--- Sends a chat message
+---@param name string
+---@param message string
+---@param peer_id integer | "optional and defaults to -1 for al peers"
+---@return nil
 function server.announce(name, message, peer_id)
     peer_id = peer_id and peer_id or -1
     if peer_id == -1 then
@@ -80,6 +86,12 @@ function server.whisper(peer_id, message)
     end
 end
 ]]
+--- Sends a pop up notification to the specified peer(s)
+---@param peer_id integer
+---@param title string
+---@param message string
+---@param NOTIFICATION_TYPE integer
+---@return nil
 function server.notify(peer_id, title, message, NOTIFICATION_TYPE)
     assureParameterInBounds("peer_id", peer_id, -1);
     assureParameterInBounds("NOTIFICATION_TYPE", NOTIFICATION_TYPE, 0, 9);
@@ -91,6 +103,8 @@ function server.notify(peer_id, title, message, NOTIFICATION_TYPE)
         printf("Notifying peer %d ('%s') with '%s', '%s', %d", peer_id, (peer.name or ""), title, message, NOTIFICATION_TYPE)
     end
 end
+--- Returns a unique UI id number for use with all other UI functions. The UI ID can be used to track, edit and clean UI elements up.
+---@return integer
 function server.getMapID()
     local ui_id = getRandomId();
     if #server.mapObjects == 0 then
@@ -101,6 +115,10 @@ function server.getMapID()
     end
     return ui_id;
 end
+--- Removes all UI with the specified UI ID for the specified peer(s).
+---@param peer_id integer
+---@param ui_id integer
+---@return nil
 function server.removeMapID(peer_id, ui_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     assureNotNil("server.mapObjects[peer_id]", server.mapObjects[peer_id])
@@ -112,6 +130,21 @@ end
 
     function server.addMapObject(peer_id, ui_id, POSITION_TYPE, MARKER_TYPE, x, y, z, parent_local_x, parent_local_y, parent_local_z, vehicle_id, object_id, label, vehicle_parent_id, radius, hover_label)
 ]]
+--- Add a map marker for the specified peer(s).
+---@param peer_id integer
+---@param ui_id integer
+---@param POSITION_TYPE integer if set to 1 or 2, (vehicle or object) then the marker will track the object/vehicle
+---@param MARKER_TYPE integer
+---@param x integer represent the worldspace location of the marker on the map
+---@param z integer represent the worldspace location of the marker on the map
+---@param parent_local_x integer marker position offset
+---@param parent_local_z integer marker position offset 
+---@param vehicle_id integer
+---@param object_id integer
+---@param label string
+---@param vehicle_parent_id integer
+---@param radius integer
+---@param hover_label string
 function server.addMapObject(peer_id, ui_id, POSITION_TYPE, MARKER_TYPE, x, z, parent_local_x, parent_local_z, vehicle_id, object_id, label, vehicle_parent_id, radius, hover_label)
     assureParameterInBounds("peer_id", peer_id, 1);
     assureParameterInBounds("ui_id", ui_id, 1);
@@ -134,16 +167,26 @@ function server.addMapObject(peer_id, ui_id, POSITION_TYPE, MARKER_TYPE, x, z, p
     server.mapObjects[peer_id][ui_id].mapObject.hover_label = hover_label;
 end
 
+--- Removes a map object with the specified UI ID for the specified peer(s).
+---@param peer_id integer
+---@param ui_id integer
 function server.removeMapObject(peer_id, ui_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     assureParameterInBounds("ui_id", ui_id, 1);
     server.mapObjects[peer_id][ui_id].mapObject = nil;
 end
 --[[
-Paramter y removed on v1.0.21
+Parameter y removed on v1.0.21
 
 function server.addMapLabel(peer_id, ui_id, LABEL_TYPE, name, x, y, z)
 ]]
+--- Add a map label for the specified peer(s).
+---@param peer_id integer
+---@param ui_id integer
+---@param LABEL_TYPE integer
+---@param name string
+---@param x integer represent the worldspace location of the marker on the map 
+---@param z integer represent the worldspace location of the marker on the map
 function server.addMapLabel(peer_id, ui_id, LABEL_TYPE, name, x, z)
     assureParameterInBounds("peer_id", peer_id, 1);
     assureParameterInBounds("ui_id", ui_id, 1);
@@ -154,14 +197,22 @@ function server.addMapLabel(peer_id, ui_id, LABEL_TYPE, name, x, z)
     server.mapObjects[peer_id][ui_id].label.LABEL_TYPE = LABEL_TYPE;
     server.mapObjects[peer_id][ui_id].label.name = name;
     server.mapObjects[peer_id][ui_id].mapObject.x = x;
-    server.mapObjects[peer_id][ui_id].mapObject.y = y;
     server.mapObjects[peer_id][ui_id].mapObject.z = z;
 end
+--- Removes a map label with the specified UI ID for the specified peer(s).
+---@param peer_id integer
+---@param ui_id integer
 function server.removeMapLabel(peer_id, ui_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     assureParameterInBounds("ui_id", ui_id, 1);
     server.mapObjects[peer_id][ui_id].label = nil;
 end
+--- Adds a map line between two world space matrices with the specified UI ID for the specified peer(s).
+---@param peer_id integer
+---@param ui_id integer
+---@param start_matrix matrix
+---@param end_matrix matrix
+---@param width integer
 function server.addMapLine(peer_id, ui_id, start_matrix, end_matrix, width)
     assureParameterInBounds("peer_id", peer_id, 1);
     assureParameterInBounds("ui_id", ui_id, 1);
@@ -172,6 +223,9 @@ function server.addMapLine(peer_id, ui_id, start_matrix, end_matrix, width)
     server.mapObjects[peer_id][ui_id].line.end_matrix = end_matrix;
     server.mapObjects[peer_id][ui_id].line.width = width;
 end
+--- Removes a map line with the specified UI ID for the specified peer(s).
+---@param peer_id integer
+---@param ui_id integer
 function server.removeMapLine(peer_id, ui_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     assureParameterInBounds("ui_id", ui_id, 1);
@@ -181,6 +235,16 @@ end
     Parameter is_worldspace removed on v1.0.21
     function server.setPopup(peer_id, ui_id, name, is_show, text, x, y, z, is_worldspace, render_distance)
 ]]
+--- Creates a popup to the world/screen with the specified UI ID for the specified peer(s).
+---@param peer_id integer
+---@param ui_id integer
+---@param name string
+---@param is_show boolean
+---@param text string
+---@param x integer
+---@param y integer
+---@param z integer
+---@param render_distance integer If set to 0 then the popup will always render.
 function server.setPopup(peer_id, ui_id, name, is_show, text, x, y, z, render_distance)
     createPopup(peer_id, ui_id);
     assureParameterInBounds("peer_id", peer_id, 1);
@@ -198,11 +262,22 @@ function server.setPopup(peer_id, ui_id, name, is_show, text, x, y, z, render_di
     server.mapObjects[peer_id][ui_id].popup.z = z;
     server.mapObjects[peer_id][ui_id].popup.render_distance = render_distance;
 end
+--- Removes a popup with the specified UI ID for the specified peer(s).
+---@param peer_id integer
+---@param ui_id integer
 function server.removePopup(peer_id, ui_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     assureParameterInBounds("ui_id", ui_id, 1);
     server.mapObjects[peer_id][ui_id].popup = nil;
 end
+--- Creates a popup to the screen with the specified UI ID for the specified peer(s).
+---@param peer_id integer
+---@param ui_id integer
+---@param name string
+---@param is_show boolean
+---@param text string
+---@param horizontal_offset integer Ranges from -1, -1 (Bottom left), to 1,1 (Top Right).
+---@param vertical_offset integer Ranges from -1, -1 (Bottom left), to 1,1 (Top Right).
 function server.setPopupScreen(peer_id, ui_id, name, is_show, text, horizontal_offset, vertical_offset)
     createPopup(peer_id, ui_id);
     assureParameterInBounds("peer_id", peer_id, 1);
@@ -234,6 +309,8 @@ function testsuite.test.setPlayerName(peer_id, name)
     assureNotNil("peer", peer);
     peer.name = name;
 end
+--- Returns the player name of the specified peer as it appears to the server.
+---@param peer_id integer
 function server.getPlayerName(peer_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
@@ -243,6 +320,8 @@ function server.getPlayerName(peer_id)
         return nil, false;
     end
 end
+--- Returns a table containing info on all connected players. I. e. "{ [peer_index] = { ["id"] = peer_id, ["name"] = name, ["admin"] = is_admin, ["auth"] = is_auth, ["steam_id"] = steam_id }}"
+---@return table
 function server.getPlayers()
     return server.peers;
 end
@@ -251,6 +330,9 @@ function testsuite.test.setPlayerPos(peer_id, matrix)
     local peer = getArrayElementById(server.peers, peer_id);
     peer.pos = matrix;
 end
+--- Gets the world position of a specified peer as a matrix.
+---@param peer_id integer
+---@return matrix, boolean
 function server.getPlayerPos(peer_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
@@ -265,6 +347,9 @@ Renamed to setPlayerPos on v1.0.21
 
 function server.teleportPlayer(peer_id, matrix)
 ]]
+--- Teleports the specified player to the target world position.
+---@param peer_id integer
+---@param matrix matrix
 function server.setPlayerPos(peer_id, matrix)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
@@ -277,6 +362,8 @@ Has been reworked on v1.0.21
 
 function server.killPlayer(peer_id)
 ]]
+--- Kills the target character.
+---@param object_id integer
 function server.killCharacter(object_id)
     assureParameterInBounds("object_id", object_id, 1);
     local character = getArrayElementById(server.objects, object_id);
@@ -290,6 +377,10 @@ Has been reworked on v1.0.21
 
     function server.setSeated(peer_id, vehicle_id, seat_name)
 ]]
+--- Sets the target character to be seated in the first seat with the specified name found on the specified vehicle.
+---@param object_id integer
+---@param vehicle_id integer
+---@param seat_name string
 function server.setCharacterSeated(object_id, vehicle_id, seat_name)
     assureParameterInBounds("object_id", object_id, 1);
     local character = getArrayElementById(server.objects, object_id);
@@ -305,18 +396,24 @@ function testsuite.test.setPlayerLookDirection(peer_id, lookDirection)
     local peer = getArrayElementById(server.peers, peer_id);
     peer.lookDirection = lookDirection;
 end
+--- Returns the forward vector of the specified player's camera.
+---@param peer_id integer
 function server.getPlayerLookDirection(peer_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     return peer.lookDirection, true;
 end
+--- Gets a specified player's character object id.
+---@param peer_id integer
 function server.getPlayerCharacterID(peer_id)
     assureParameterInBounds("peer_id", peer_id, 1);
     local peer = getArrayElementById(server.peers, peer_id);
     assureNotNil("peer", peer);
     return peer.characterId;
 end
+--- Revives the target character.
+---@param object_id integer
 function server.reviveCharacter(object_id)
     assureParameterInBounds("object_id", object_id, 1);
     local character = getArrayElementById(server.objects, object_id);
@@ -327,6 +424,10 @@ function server.reviveCharacter(object_id)
 end
 
 --Vehicle
+--- Spawns a vehicle component from a specified playlist. See getLocationComponentData for info on how to get component_id.
+---@param matrix matrix
+---@param playlist_index integer
+---@param component_id integer
 function server.spawnVehicle(matrix, playlist_index, component_id)
     assureParameterInBounds("playlist_index", playlist_index, 1);
     assureParameterInBounds("component_id", component_id, 1);
@@ -342,6 +443,9 @@ function server.spawnVehicle(matrix, playlist_index, component_id)
     server.vehicles[vehicleIndex].playlist_index = playlist_index;
     return vehicleId, true;
 end
+--- Spawns a vehicle from local appdata (%appdata% on Windows, data folder for servers) using its file name. 
+---@param matrix matrix
+---@param save_name string
 function server.spawnVehicleSavefile(matrix, save_name)
     local vehicleIndex = #server.vehicles + 1;
     local vehicleId = getRandomId();
@@ -353,6 +457,9 @@ function server.spawnVehicleSavefile(matrix, save_name)
     server.vehicles[vehicleIndex].name = save_name;
     return vehicleId, true;
 end
+--- Sets a vehicle to despawn when out of a player's range.
+---@param vehicle_id integer
+---@param is_instant boolean If set, the vehicle will instantly despawn no matter the player's proximity.
 function server.despawnVehicle(vehicle_id, is_instant)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
@@ -367,6 +474,11 @@ function testsuite.test.setVehiclePos(vehicle_id, matrix)
     assureNotNil("vehicle", vehicle);
     vehicle.pos = matrix;
 end
+--- Gets the world position of a vehicle. Voxel positions can be passed to get the world position of that voxel (defaults to 0,0,0 for vehicle origin).
+---@param vehicle_id integer
+---@param voxel_x integer
+---@param voxel_y integer
+---@param voxel_z integer
 function server.getVehiclePos(vehicle_id, voxel_x, voxel_y, voxel_z)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
@@ -377,6 +489,8 @@ function server.getVehiclePos(vehicle_id, voxel_x, voxel_y, voxel_z)
         return vehicle.pos, true;
     end
 end
+--- Gets a vehicle's file name.
+---@param vehicle_id integer
 function server.getVehicleName(vehicle_id)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
@@ -388,6 +502,9 @@ Renamed to setVehiclePos on v1.0.21
 
 function server.teleportVehicle(matrix, vehicle_id)
 ]]
+--- Teleports the specified vehicle to the target world position.
+---@param matrix matrix
+---@param vehicle_id integer
 function server.setVehiclePos(matrix, vehicle_id)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
@@ -395,9 +512,13 @@ function server.setVehiclePos(matrix, vehicle_id)
     vehicle.pos = matrix;
     return true;
 end
+--- Cleans up all player spawned vehicles.
 function server.cleanVehicles()
     server.vehicles = {};
 end
+--- Applies a press action to the first button of the specified name found on the specified vehicle.
+---@param vehicle_id integer
+---@param button_name string
 function server.pressVehicleButton(vehicle_id, button_name)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
@@ -405,6 +526,9 @@ function server.pressVehicleButton(vehicle_id, button_name)
     vehicle.buttons[button_name] = true;
     printf("Button '%s' of vehicle '%d' ('%s') has been pressed.", button_name, vehicle_id, (vehicle.name or ""));
 end
+--- Returns the state of the first button of the specified name found on the specified vehicle.
+---@param vehicle_id integer
+---@param button_name string
 function server.getVehicleButton(vehicle_id, button_name)
     assureParameterInBounds("vehicle_id", vehicle_id, 1)
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
@@ -417,12 +541,17 @@ function testsuite.test.setVehicleFireCount(vehicle_id, count)
     assureNotNil("vehicle", vehicle);
     vehicle.fireCount = count;
 end
+--- Gets the number of burning surfaces on a specified vehicle.
+---@param vehicle_id integer
 function server.getVehicleFireCount(vehicle_id)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
     return vehicle.fireCount;
 end
+--- Sets the default block tooltip of a vehicle to display some text. Blocks with unique tooltips (e.g. buttons) will override this tooltip.
+---@param vehicle_id integer
+---@param text string
 function server.setVehicleTooltip(vehicle_id, text)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
@@ -435,24 +564,45 @@ function testsuite.test.setVehicleSimulating(vehicleId, simulating)
     assureNotNil("vehicle", vehicle);
     vehicle.simulating = simulating;
 end
+--- Returns whether the specified vehicle has finished loading and is simulating.
+---@param vehicle_id integer
 function server.getVehicleSimulating(vehicle_id)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
     return vehicle.simulating;
 end
+--- Sets a vehicle's global transponder to active. (All vehicles have a global transponder that can be active even if a vehicle is not loaded)-
+---@param vehicle_id integer
+---@param is_active boolean
 function server.setVehicleTransponder(vehicle_id, is_active)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
     vehicle.transponderActive = is_active;
 end
+--- Sets a vehicle to be editable by players. If a vehicle is spawned by a script it will not have a parent workbench until edited by one (Edit vehicle in zone).
+---@param vehicle_id integer
+---@param is_editable boolean
 function server.setVehicleEditable(vehicle_id, is_editable)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
     assureNotNil("vehicle", vehicle);
     vehicle.editable = is_editable;
 end
+--- Overrides the inputs to the first seat of the specified name found on the specified vehicle. A seated player will prevent overrides.
+---@param vehicle_id integer
+---@param seat_name string
+---@param axis_w number
+---@param axis_d number
+---@param axis_up number
+---@param axis_right number
+---@param button1 boolean
+---@param button2 boolean
+---@param button3 boolean
+---@param button4 boolean
+---@param button5 boolean
+---@param button6 boolean
 function server.setVehicleSeat(vehicle_id, seat_name, axis_w, axis_d, axis_up, axis_right, button1, button2, button3, button4, button5, button6)
     assureParameterInBounds("vehicle_id", vehicle_id, 1);
     local vehicle = getArrayElementById(server.vehicles, vehicle_id);
@@ -471,6 +621,8 @@ function server.setVehicleSeat(vehicle_id, seat_name, axis_w, axis_d, axis_up, a
 end
 
 --Mission
+--- Gets the internal index of an active playlist by its name (useful if you want to spawn components from another script).
+---@param name string
 function server.getPlaylistIndexByName(name)
     for playListIndex = 1, #server.playlists do
         if server.playlists[playListIndex].name == name then
@@ -482,9 +634,13 @@ end
 function testsuite.test.setPlaylistIndexCurrent(currentPlaylistIndex)
     server.playlists.currentPlaylistIndex = currentPlaylistIndex;
 end
+--- Gets the internal index of this playlist.
 function server.getPlaylistIndexCurrent()
     return server.playlists.currentPlaylistIndex;
 end
+--- Gets the internal index of a location in the specified playlist by its name (this index is local to the playlist).
+---@param playlist_index integer
+---@param name string
 function server.getLocationIndexByName(playlist_index, name)
     assureParameterInBounds("playlist_index", playlist_index, 1);
     getOrSetArr(server.playlists[playlist_index].locations, {});
@@ -495,6 +651,8 @@ function server.getLocationIndexByName(playlist_index, name)
     end
     return nil, false;
 end
+--- Directly spawns a location by its name from the current  playlist.
+---@param name string
 function server.spawnThisPlaylistMissionLocation(name)
     local currentPlaylistIndex = server.getPlaylistIndexCurrent();
     assureNotNil("currentPlaylistIndex", currentPlaylistIndex);
@@ -504,6 +662,10 @@ function server.spawnThisPlaylistMissionLocation(name)
     printf("Location %d of playlist %d spawned.", locationIndex, currentPlaylistIndex);
     return true;
 end
+--- Spawns the specified mission location from the specified mission playlist at the specified world coordinates.
+---@param matrix matrix A matrix with x,y,z = 0,0,0 will spawn the location at a random location of the tile's type (useful for spawning missions on specified files).
+---@param playlist_index integer
+---@param location_index integer
 function server.spawnMissionLocation(matrix, playlist_index, location_index)
     assureNotNil("matrix", matrix);
     assureParameterInBounds("playlist_index", playlist_index, 1);
@@ -516,6 +678,9 @@ function server.spawnMissionLocation(matrix, playlist_index, location_index)
     missionLocation.spawned = true;
     return matrix, true;
 end
+--- Gets the filepath of a playlist.
+---@param playlist_name string
+---@param is_rom boolean will only be true for DEV playlists stored in the rom folder.
 function server.getPlaylistPath(playlist_name, is_rom)
     local playlistIndex = server.getPlaylistIndexByName(playlist_name);
     assureNotNil("playlistIndex", playlistIndex);
@@ -523,6 +688,9 @@ function server.getPlaylistPath(playlist_name, is_rom)
     assureNotNil("playList", playList);
     return playList.filePath, true;
 end
+--- Spawn the specified object at the specified world position.
+---@param matrix matrix
+---@param OBJECT_TYPE integer
 function server.spawnObject(matrix, OBJECT_TYPE)
     assureParameterInBounds("OBJECT_TYPE", OBJECT_TYPE, 0, 63);
     local objectIndex = #server.objects + 1;
@@ -534,12 +702,19 @@ function server.spawnObject(matrix, OBJECT_TYPE)
     server.objects[objectIndex].pos = matrix;
     return objectId, true;
 end
+--- Get the world position of a specified object. Returns false if the object cannot be found.
+---@param object_id integer
+---@return matrix, boolean
 function server.getObjectPos(object_id)
     assureParameterInBounds("object_id", object_id, 1);
     local object = getArrayElementById(server.objects, object_id);
     assureNotNil("object", object);
     return  object.pos, true;
 end
+--- Sets the world position of a specified object. Returns false if the object cannot be found.
+---@param object_id integer
+---@param matrix matrix
+---@return boolean
 function server.setObjectPos(object_id, matrix)
     assureParameterInBounds("object_id", object_id, 1);
     assureNotNil("matrix", matrix);
@@ -553,6 +728,14 @@ Parameter is_initialzied has been removed on v1.0.21
 
 function server.spawnFire(matrix, size, magnitude, is_lit, is_initialzied, is_explosive, parent_vehicle_id, explosion_magnitude)
 ]]
+--- Spawns a world fire at the specified world position matrix.
+---@param matrix matrix
+---@param size integer
+---@param magnitude integer
+---@param is_lit boolean
+---@param is_explosive boolean
+---@param parent_vehicle_id integer should be 0 if the fire should not move relative to a vehicle.
+---@param explosion_magnitude integer
 function server.spawnFire(matrix, size, magnitude, is_lit, is_explosive, parent_vehicle_id, explosion_magnitude)
     assureParameterInBounds("parent_vehicle_id", parent_vehicle_id, 1);
     local objectIndex = #server.objects + 1;
@@ -568,11 +751,17 @@ function server.spawnFire(matrix, size, magnitude, is_lit, is_explosive, parent_
     server.objects[objectIndex].explosion_magnitude = explosion_magnitude;
     return objectId, true;
 end
+--- Despawns the specified object when it is out of a player's range.
+---@param object_id integer
+---@param is_instant boolean will instantly despawn the object.
 function server.despawnObject(object_id, is_instant)
     assureParameterInBounds("object_id", object_id, 1);
     destroyArrayElementById(server.objects, object_id);
     return true;
 end
+--- Spawns a character object.
+---@param matrix matrix world position
+---@param outfit_id integer optional outfit
 function server.spawnCharacter(matrix, outfit_id)
     assureParameterInBounds("outfit_id", outfit_id, 0, 11);
     local characterId = getRandomId();
@@ -585,6 +774,10 @@ function server.spawnCharacter(matrix, outfit_id)
     server.objects[characterIndex].hp = 1;
     return characterId, true;
 end
+--- Spawns an animal at the specified world position.
+---@param matrix matrix
+---@param animal_type integer
+---@param scale integer
 function server.spawnAnimal(matrix, animal_type, scale)
     assureParameterInBounds("animal_type", animal_type, 1, 5);
     local objectId = getRandomId();
@@ -604,12 +797,18 @@ function server.despawnCharacter(object_id, is_instant)
     destroyArrayElementById(server.objects, object_id);
 end
 ]]
+--- Gets character data for a specified character object.
+---@param object_id integer
 function server.getCharacterData(object_id)
     assureParameterInBounds("object_id", object_id, 1);
     local character = getArrayElementById(server.objects, object_id);
     assureNotNil("character", character);
     return character.hp, character.pos, character.is_incapacitated, character.hp == 0, character.is_interactable;
 end
+--- Sets character data for a specified character object. Non-interactable characters are frozen in place and cannot be moved.
+---@param object_id integer
+---@param hp number
+---@param is_interactable boolean has no effect on player characters.
 function server.setCharacterData(object_id, hp, is_interactable)
     assureParameterInBounds("object_id", object_id, 1);
     local character = getArrayElementById(server.objects, object_id);
@@ -617,6 +816,11 @@ function server.setCharacterData(object_id, hp, is_interactable)
     character.hp = hp;
     character.is_interactable = is_interactable;
 end
+--- Sets the item slot data for a specified character object.
+---@param object_id integer
+---@param slot integer
+---@param EQUIPMENT_ID integer
+---@param is_active boolean
 function server.setCharacterItem(object_id, slot, EQUIPMENT_ID, is_active)
     assureParameterInBounds("object_id", object_id, 1);
     assureParameterInBounds("slot", slot, 1, 6);
@@ -630,6 +834,9 @@ function server.setCharacterItem(object_id, slot, EQUIPMENT_ID, is_active)
     end
     printf("Character '%d' has item '%d' on slot %d and it's %s", object_id, EQUIPMENT_ID, slot, (is_active and "active" or "not active"));
 end
+--- Gets the item in the specified slot for a specified character object.
+---@param object_id integer
+---@param SLOT_NUMBER integer
 function server.getCharacterItem(object_id, SLOT_NUMBER)
     assureParameterInBounds("object_id", object_id, 1);
     assureParameterInBounds("slot", SLOT_NUMBER, 1, 6);
@@ -637,12 +844,15 @@ function server.getCharacterItem(object_id, SLOT_NUMBER)
     assureNotNil("character", character);
     return character.inventory[SLOT_NUMBER];
 end
+--- Gets whether the game considers the tutorial active (default missions check this before they spawn).
 function server.getTutorial()
     return server.playlists.tutorial and server.playlists.tutorial or false;
 end
+--- Sets whether the game considers the tutorial as active (useful if you are marking your own tutorial).
 function server.setTutorial()
     server.playlists.tutorial = true;
 end
+--- Gets a table of all active environment mods zones when no tags were specified. Will return matching ones when tags were specified.
 function server.getZones(...)
     local tags = {...};
     local resultTags = {};
@@ -659,6 +869,9 @@ function server.getZones(...)
         return resultTags;
     end
 end
+--- Returns whether the specified world transform is within an environment mod zone that matches the display name.
+---@param matrix matrix
+---@param zone_display_name string
 function server.isInZone(matrix, zone_display_name)
     -- TODO
     error("Matrix not implemented yet.");
@@ -668,6 +881,7 @@ Renamed on v1.0.21
 
 function server.spawnMissionObject(matrix, playlist_index, location_index, object_index)
 ]]
+--- Spawns the component (object/vehicle) at the specified component index at the specified location at the specified index. I.e. "{ ["name"] = name, ["display_name"] = display_name, ["type"] = TYPE_STRING, ["transform"] = matrix, ["id"] = object_id/vehicle_id }"
 function server.spawnMissionComponent(matrix, playlist_index, location_index, object_index)
     assureNotNil("matrix", matrix);
     assureNotNil("server.playlists[playlist_index]", server.playlists[playlist_index]);
@@ -690,15 +904,22 @@ function server.despawnMissionObject(object_id, is_instant)
     printf("Despawned object with id %d %s", object_id, (is_instant and "instantly" or ""));
 end
 ]]
+--- Gets the number of active playlists.
 function server.getPlaylistCount()
     return #server.playlists;
 end
+--- Gets the table of playlist data for the specified location at the specified playlist_index. I.e. "{ ["name"] = name, ["path_id"] = folder_path, ["file_store"] = is_app_data, ["location_count"] = location_count }"
+---@param playlist_index integer
 function server.getPlaylistData(playlist_index)
     return server.playlists[playlist_index];
 end
+--- Gets the table of location data for the specified location at the specified playlist_index. I.e. "{ ["name"] = name, ["tile"] = tile_filename, ["env_spawn_count"] = spawn_count, ["env_mod"] = is_env_mod, ["component_count"] = component_count }"
+---@param playlist_index integer
+---@param location_index integer
 function server.getLocationData(playlist_index, location_index)
     return server.playlists[playlist_index].locations[location_index], true;
 end
+--- Gets the table of component (object/vehicle) data for the specified component at the specified location at the specified playlist_index. I.e. "{ ["name"] = name, ["display_name"] = display_name, ["type"] = TYPE_STRING, ["id"] = component_id, ["dynamic_object_type"] = OBJECT_TYPE, ["tags"] = { [i] = tag }, ["transform"] = matrix, ["character_outfit_type"] = OUTFIT_TYPE }"
 function server.getLocationComponentData(playlist_index, location_index, object_index)
     assureNotNil("server.playlists[playlist_index]", server.playlists[playlist_index]);
     assureNotNil("server.playlists[playlist_index].locations[location_index]", server.playlists[playlist_index].locations[location_index]);
@@ -708,6 +929,10 @@ function server.getLocationComponentData(playlist_index, location_index, object_
     assureNotNil("object", object);
     return object, true;
 end
+--- Sets data for a world fire using its object_id.
+---@param object_id integer
+---@param is_lit boolean
+---@param is_explosive boolean
 function server.setFireData(object_id, is_lit, is_explosive)
     assureParameterInBounds("object_id", object_id, 1)
     local fire = getArrayElementById(server.objects, object_id);
@@ -715,50 +940,70 @@ function server.setFireData(object_id, is_lit, is_explosive)
     fire.is_lit = is_lit;
     fire.is_explosive = is_explosive;
 end
+--- Gets data for a world fire using its object_id.
+---@param object_id integer
 function server.getFireData(object_id)
     assureParameterInBounds("object_id", object_id, 1)
     local fire = getArrayElementById(server.objects, object_id);
     assureNotNil("fire", fire);
     return fire.is_lit;
 end
---[[ returns the world position of a random ocean tile within the selected search range ]]
+--- returns the world position of a random ocean tile within the selected search range
+---@param matrix matrix
+---@param min_search_range integer
+---@param max_search_range integer
 function server.getOceanTransform(matrix, min_search_range, max_search_range)
     -- TODO
     error("Matrix not implemented yet.");
 end
---[[ returns whether the object transform is within a custom zone of the selected size ]]
+--- returns whether the object transform is within a custom zone of the selected size
+---@param matrix_object matrix
+---@param matrix_zone matrix
+---@param zone_x integer
+---@param zone_y integer
+---@param zone_z integer
 function server.isInTransformArea(matrix_object, matrix_zone, zone_x, zone_y, zone_z)
     -- TODO
     error("Matrix not implemented yet.");
 end
 
 --Game
+--- Sets a game setting.
+---@param GAME_SETTING integer
+---@param value any
 function server.setGameSetting(GAME_SETTING, value)
     assureValueInArray(server.gameSettings.GAME_SETTINGS, GAME_SETTING);
     server.gameSettings.settings[GAME_SETTING] = value;
 end
+--- Returns a table of the game settings indexed by the GAME_SETTING string, this can be accessed inline eg. server.getGameSettings().third_person
 function server.getGameSettings()
     return server.gameSettings.settings;
 end
+--- Sets the game money balance and research points.
 function server.setCurrency(money, research)
     server.gameSettings.money = money;
     server.gameSettings.research = research;
 end
+--- Gets the game money balance.
 function server.getCurrency()
     return server.gameSettings.money;
 end
+--- Gets the game reearch points.
 function server.getResearchPoints()
     return server.gameSettings.research;
 end
 function testsuite.test.setDateValue(value)
     server.gameSettings.date = value;
 end
+--- Gets the number of days since game start.
 function server.getDateValue()
     return server.gameSettings.date;
 end
+--- Getst the system time in ms (can be used for random seeding).
 function server.getTimeMillisec()
     return os.time();
 end
+--- Returns whether the tile at the given world coordinates is player owned.
 function testsuite.test.setTilePurchased(matrix, purchased)
     local tileIndex = #server.tiles + 1;
     getOrSetArr(server.tiles, tileIndex);
@@ -772,6 +1017,9 @@ end
 function testsuite.test.setHttpGetCallback(callback)
     server.httpGetCallback = callback;
 end
+--- Sends a HTTP GET request.
+---@param port integer
+---@param request_body string
 function server.httpGet(port, request_body)
     if server.httpGetCallback then
         return server.httpGetCallback(port, request_body);
@@ -780,6 +1028,8 @@ end
 
 -- admin
 -- added with v1.0
+--- Bans a player
+---@param peer_id integer
 function server.banPlayer(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
@@ -787,6 +1037,8 @@ function server.banPlayer(peer_id)
     peer.isBanned = true;
     printf("Banned id %d ('%s')", peer_id, (peer.name or ""));
 end
+--- Kicks a player
+---@param peer_id integer
 function server.kickPlayer(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
@@ -794,6 +1046,8 @@ function server.kickPlayer(peer_id)
     peer.gotKicked = true;
     printf("Kicked id %d ('%s')", peer_id, (peer.name or ""));
 end
+--- Gives a player admin privileges.
+---@param peer_id integer
 function server.addAdmin(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
@@ -801,6 +1055,8 @@ function server.addAdmin(peer_id)
     peer.admin = true;
     printf("Added id %d ('%s') to adminlist", peer_id, (peer.name or ""));
 end
+--- Removes a player's admin priviledges.
+---@param peer_id integer
 function server.removeAdmin(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
@@ -808,6 +1064,8 @@ function server.removeAdmin(peer_id)
     peer.admin = false;
     printf("Removed id %d ('%s') from adminlist", peer_id, (peer.name or ""));
 end
+--- Authorizes the player to use the workbenches.
+---@param peer_id integer
 function server.addAuth(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
@@ -815,6 +1073,8 @@ function server.addAuth(peer_id)
     peer.auth = true;
     printf("Added id %d ('%s') to authlist", peer_id, (peer.name or ""));
 end
+--- Removes a player's authorization to use the workbenches.
+---@param peer_id integer
 function server.removeAuth(peer_id)
     assureParameterInBounds("peer_id", peer_id, -1);
     local peer = getArrayElementById(server.peers, peer_id);
